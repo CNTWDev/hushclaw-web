@@ -6,7 +6,7 @@
 
   <!-- Breadcrumb -->
   <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
-    <a href="/skills" class="hover:text-teal-400 transition-colors">技能商店</a>
+    <a href="/skills" class="hover:text-teal-400 transition-colors">Skills Store</a>
     <span>›</span>
     <a href="/skills?category={{ skill.category.slug }}" class="hover:text-teal-400 transition-colors">
       {{ skill.category.icon }} {{ skill.category.name }}
@@ -37,7 +37,7 @@
 
       <!-- Description -->
       <div class="bg-navy-800 border border-navy-600 rounded-xl p-6 mb-6">
-        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">详细说明</h2>
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Description</h2>
         <div class="text-gray-300 leading-relaxed whitespace-pre-line">{{ skill.description }}</div>
       </div>
     </div>
@@ -47,34 +47,34 @@
 
       <!-- Stats -->
       <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">统计信息</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Stats</h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span class="text-gray-400">安装次数</span>
+            <span class="text-gray-400">Installs</span>
             <span class="text-white font-medium">{{ skill.install_count }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">评分</span>
+            <span class="text-gray-400">Rating</span>
             <span class="text-white font-medium">
               {% if skill.avg_rating > 0 %}
-              ★ {{ skill.avg_rating }} / 5 ({{ skill.rating_count }} 票)
-              {% else %}暂无评分{% endif %}
+              ★ {{ skill.avg_rating }} / 5 ({{ skill.rating_count }} votes)
+              {% else %}No ratings yet{% endif %}
             </span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">作者</span>
+            <span class="text-gray-400">Author</span>
             <span class="text-white font-medium">{{ skill.author }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">平台</span>
+            <span class="text-gray-400">Platform</span>
             <span class="text-white font-medium">
               {% if skill.platform == 'mac' %}🍎 macOS
               {% elif skill.platform == 'windows' %}🪟 Windows
-              {% else %}全平台{% endif %}
+              {% else %}All Platforms{% endif %}
             </span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">发布时间</span>
+            <span class="text-gray-400">Published</span>
             <span class="text-white font-medium">{{ skill.created_at.strftime('%Y-%m-%d') }}</span>
           </div>
         </div>
@@ -82,7 +82,7 @@
 
       <!-- Star Rating -->
       <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">为此技能评分</h3>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Rate this skill</h3>
         <div id="star-rating" class="flex gap-2 mb-3" data-skill-id="{{ skill.id }}" data-user-rating="{{ user_rating }}">
           {% for i in range(1, 6) %}
           <button
@@ -94,18 +94,18 @@
           {% endfor %}
         </div>
         <div id="rating-feedback" class="text-xs text-gray-500">
-          {% if user_rating %}已评 {{ user_rating }} 星，可重新评分{% else %}点击星星评分{% endif %}
+          {% if user_rating %}Rated {{ user_rating }} stars — click to change{% else %}Click a star to rate{% endif %}
         </div>
         <div id="rating-result" class="text-sm text-teal-400 mt-2 hidden"></div>
       </div>
 
       <!-- Category link -->
       <a href="/skills?category={{ skill.category.slug }}" class="block bg-navy-800 border border-navy-600 hover:border-teal-500 rounded-xl p-4 transition-colors group">
-        <p class="text-xs text-gray-500 mb-1">分类</p>
+        <p class="text-xs text-gray-500 mb-1">Category</p>
         <p class="text-white font-medium group-hover:text-teal-400 transition-colors">
           {{ skill.category.icon }} {{ skill.category.name }}
         </p>
-        <p class="text-xs text-gray-500 mt-1">查看更多同类技能 →</p>
+        <p class="text-xs text-gray-500 mt-1">Browse more in this category →</p>
       </a>
     </div>
   </div>
@@ -142,11 +142,11 @@
         const data = await res.json();
         userRating = score;
         paint(userRating);
-        feedback.textContent = `已评 ${score} 星`;
-        result.textContent = `当前平均分：★ ${data.avg_rating} / 5（${data.rating_count} 票）`;
+        feedback.textContent = `Rated ${score} stars`;
+        result.textContent = `Average rating: ★ ${data.avg_rating} / 5 (${data.rating_count} votes)`;
         result.classList.remove('hidden');
       } catch (e) {
-        feedback.textContent = '评分失败，请重试';
+        feedback.textContent = 'Rating failed, please try again';
       }
     });
   });

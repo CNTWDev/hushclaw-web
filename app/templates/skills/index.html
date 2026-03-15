@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}技能商店 — Hushclaw{% endblock %}
+{% block title %}Skills Store — HushClaw{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold">🛒 技能商店</h1>
-    <p class="text-gray-400 mt-2">发现并安装社区贡献的自动化技能</p>
+    <h1 class="text-3xl font-bold">🛒 Skills Store</h1>
+    <p class="text-gray-400 mt-2">Discover and install community-contributed skills</p>
   </div>
 
   <!-- Search + Sort -->
@@ -16,17 +16,17 @@
       type="text"
       name="q"
       value="{{ search_query }}"
-      placeholder="搜索技能..."
+      placeholder="Search skills..."
       class="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 transition-colors"
     />
     <input type="hidden" name="category" value="{{ active_category }}" />
     <select name="sort" onchange="this.form.submit()" class="bg-navy-800 border border-navy-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-teal-500 transition-colors">
-      <option value="popular" {% if sort == 'popular' %}selected{% endif %}>最受欢迎</option>
-      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>最新发布</option>
-      <option value="rating" {% if sort == 'rating' %}selected{% endif %}>评分最高</option>
+      <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+      <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
     </select>
     <button type="submit" class="bg-teal-500 hover:bg-teal-400 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
-      搜索
+      Search
     </button>
   </form>
 
@@ -35,7 +35,7 @@
     <a
       href="/skills?sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
       class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors {% if not active_category %}bg-teal-500 text-white{% else %}bg-navy-700 text-gray-300 hover:bg-navy-600{% endif %}"
-    >全部</a>
+    >All</a>
     {% for cat in categories %}
     <a
       href="/skills?category={{ cat.slug }}&sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
@@ -56,7 +56,7 @@
         <span class="text-xs {% if skill.platform == 'mac' %}text-gray-300 bg-gray-700{% elif skill.platform == 'windows' %}text-blue-300 bg-blue-900/30{% else %}text-gray-500{% endif %} px-2 py-0.5 rounded-full">
           {% if skill.platform == 'mac' %}🍎 Mac
           {% elif skill.platform == 'windows' %}🪟 Windows
-          {% else %}全平台{% endif %}
+          {% else %}All Platforms{% endif %}
         </span>
       </div>
 
@@ -78,7 +78,7 @@
           <span class="text-yellow-400">★</span>
           <span>{{ avg }} ({{ skill.rating_count }})</span>
           {% else %}
-          <span>暂无评分</span>
+          <span>No ratings yet</span>
           {% endif %}
         </div>
         <div class="flex items-center gap-3">
@@ -92,8 +92,8 @@
   {% else %}
   <div class="text-center py-24 text-gray-500">
     <div class="text-5xl mb-4">🔍</div>
-    <p class="text-lg">未找到相关技能</p>
-    <p class="text-sm mt-2">尝试更换关键词或分类</p>
+    <p class="text-lg">No skills found</p>
+    <p class="text-sm mt-2">Try a different keyword or category</p>
   </div>
   {% endif %}
 </div>
