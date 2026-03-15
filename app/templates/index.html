@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Hushclaw — 本地优先 AI 浏览器自动化{% endblock %}
+{% block title %}HushClaw — Lightweight Token-first AI Agent Framework{% endblock %}
 
 {% block content %}
 <!-- Hero -->
@@ -10,24 +10,25 @@
   </div>
   <div class="relative max-w-4xl mx-auto px-4 text-center">
     <div class="inline-flex items-center gap-2 bg-navy-700 border border-navy-600 text-teal-400 text-xs font-medium px-3 py-1 rounded-full mb-6">
-      🦀 本地运行 · 隐私优先 · 开箱即用
+      🦀 Zero Dependencies · Persistent Memory · Built-in Browser UI
     </div>
     <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">
-      让 AI 替你
+      Lightweight
       <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-600">
-        操控浏览器
+        AI Agent
       </span>
+      Framework
     </h1>
     <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-      Hushclaw 是一款本地优先的 AI 浏览器自动化工具，无需云端，数据不离机，
-      一句话描述任务即可自动完成网页操作。
+      Token-first design with persistent memory and a built-in browser UI.
+      Zero mandatory dependencies — pure Python stdlib.
     </p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a href="#install" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors">
-        立即安装
+        Install Now
       </a>
       <a href="/skills" class="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-200 font-semibold px-8 py-3 rounded-lg transition-colors">
-        浏览技能商店
+        Browse Skills
       </a>
     </div>
   </div>
@@ -43,7 +44,7 @@
         onclick="switchTab('mac')"
         class="tab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700"
       >
-        🍎 macOS
+        🍎 macOS / 🐧 Linux
       </button>
       <button
         id="tab-win"
@@ -54,13 +55,13 @@
       </button>
     </div>
 
-    <!-- Mac -->
+    <!-- Mac / Linux -->
     <div id="panel-mac" class="p-6">
-      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">在终端中运行</p>
+      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Run in Terminal</p>
       <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-green-400 border border-navy-600">
-        <code id="cmd-mac">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.sh)</code>
+        <code id="cmd-mac">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
         <button
-          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.sh)"
+          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)"
           class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
         >Copy</button>
       </div>
@@ -68,13 +69,13 @@
 
     <!-- Windows -->
     <div id="panel-win" class="p-6 hidden">
-      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">在 PowerShell 中运行</p>
+      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Run in PowerShell</p>
       <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-blue-300 border border-navy-600">
-        <pre id="cmd-win" class="whitespace-pre-wrap">$url = "https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.ps1"
-$script = (Invoke-WebRequest -Uri $url).Content
-Invoke-Expression $script</pre>
+        <pre id="cmd-win" class="whitespace-pre-wrap">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1
+.\install.ps1</pre>
         <button
-          data-copy="$url = &quot;https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.ps1&quot;&#10;$script = (Invoke-WebRequest -Uri $url).Content&#10;Invoke-Expression $script"
+          data-copy="Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass&#10;Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1&#10;.\install.ps1"
           class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
         >Copy</button>
       </div>
@@ -84,15 +85,19 @@ Invoke-Expression $script</pre>
 
 <!-- Features -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-  <h2 class="text-3xl font-bold text-center mb-4">为什么选择 Hushclaw？</h2>
-  <p class="text-gray-400 text-center mb-14 max-w-xl mx-auto">五大核心优势，让自动化触手可及</p>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+  <h2 class="text-3xl font-bold text-center mb-4">Why HushClaw?</h2>
+  <p class="text-gray-400 text-center mb-14 max-w-xl mx-auto">Everything you need to build powerful AI agents — nothing you don't</p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% set features = [
-      ("⚡", "极速高效", "AI 自动规划并执行多步骤操作，节省大量重复劳动时间"),
-      ("🚀", "零门槛上手", "无需编程基础，自然语言描述即可触发自动化流程"),
-      ("🔒", "隐私安全", "全程本地运行，数据不上云，敏感操作不留痕"),
-      ("🎯", "精准执行", "智能识别页面元素，抗噪音能力强，执行准确率高"),
-      ("💰", "极低成本", "开源免费，仅需本地算力，无需订阅任何云服务"),
+      ("🖥️", "Browser UI", "Full chat interface at http://localhost:8765 — sessions, memories, and multi-agent panels. Setup wizard on first launch."),
+      ("🎯", "Token-first Design", "Explicit token budget per context section. Anthropic KV-cache support for the stable prefix."),
+      ("🧠", "Persistent Memory", "Notes survive across sessions via SQLite FTS5 + local vector search."),
+      ("📦", "Zero Dependencies", "Runs with Python 3.11+ stdlib only — sqlite3, tomllib, asyncio, urllib. No pip required."),
+      ("🔌", "Multiple Providers", "Anthropic (urllib or SDK), Ollama, and any OpenAI-compatible endpoint."),
+      ("🔄", "ReAct Loop", "Tool use with pluggable ContextEngine for lossless context compaction."),
+      ("🧩", "Plugin Tools", "Drop .py files into ~/.config/hushclaw/tools/ to extend with custom tools."),
+      ("🤝", "Multi-agent", "Sequential pipelines, session-affinity pools, and agent-to-agent delegation."),
+      ("💾", "Native Storage", "macOS ~/Library/Application Support/hushclaw/ · Linux ~/.local/share/hushclaw/"),
     ] %}
     {% for icon, name, desc in features %}
     <div class="bg-navy-800 border border-navy-600 rounded-xl p-6 hover:border-teal-500 transition-colors group">
@@ -148,10 +153,10 @@ Invoke-Expression $script</pre>
 
 <!-- Bottom CTA -->
 <section class="max-w-2xl mx-auto text-center px-4 py-24">
-  <h2 class="text-3xl font-bold mb-4">准备好了吗？</h2>
-  <p class="text-gray-400 mb-8">安装 Hushclaw，探索数百个自动化技能</p>
+  <h2 class="text-3xl font-bold mb-4">Ready to get started?</h2>
+  <p class="text-gray-400 mb-8">Install HushClaw and explore hundreds of community skills</p>
   <a href="#install" class="inline-block bg-teal-500 hover:bg-teal-400 text-white font-semibold px-10 py-3 rounded-lg transition-colors">
-    立即开始
+    Install Now
   </a>
 </section>
 {% endblock %}
