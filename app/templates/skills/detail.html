@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ skill.title }} — Hushclaw{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
+    <a href="/skills" class="hover:text-teal-400 transition-colors">技能商店</a>
+    <span>›</span>
+    <a href="/skills?category={{ skill.category.slug }}" class="hover:text-teal-400 transition-colors">
+      {{ skill.category.icon }} {{ skill.category.name }}
+    </a>
+    <span>›</span>
+    <span class="text-gray-300">{{ skill.title }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main content -->
+    <div class="lg:col-span-2">
+      <div class="flex items-start gap-4 mb-6">
+        <div class="text-4xl">{{ skill.category.icon }}</div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">{{ skill.title }}</h1>
+          <p class="text-gray-400 mt-1">{{ skill.short_desc }}</p>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      {% if skill.tag_list %}
+      <div class="flex flex-wrap gap-2 mb-6">
+        {% for tag in skill.tag_list %}
+        <span class="text-xs bg-navy-700 text-gray-400 px-3 py-1 rounded-full border border-navy-600">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Description -->
+      <div class="bg-navy-800 border border-navy-600 rounded-xl p-6 mb-6">
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">详细说明</h2>
+        <div class="text-gray-300 leading-relaxed whitespace-pre-line">{{ skill.description }}</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-5">
+
+      <!-- Stats -->
+      <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">统计信息</h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-400">安装次数</span>
+            <span class="text-white font-medium">{{ skill.install_count }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">评分</span>
+            <span class="text-white font-medium">
+              {% if skill.avg_rating > 0 %}
+              ★ {{ skill.avg_rating }} / 5 ({{ skill.rating_count }} 票)
+              {% else %}暂无评分{% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">作者</span>
+            <span class="text-white font-medium">{{ skill.author }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">平台</span>
+            <span class="text-white font-medium">
+              {% if skill.platform == 'mac' %}🍎 macOS
+              {% elif skill.platform == 'windows' %}🪟 Windows
+              {% else %}全平台{% endif %}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">发布时间</span>
+            <span class="text-white font-medium">{{ skill.created_at.strftime('%Y-%m-%d') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Star Rating -->
+      <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">为此技能评分</h3>
+        <div id="star-rating" class="flex gap-2 mb-3" data-skill-id="{{ skill.id }}" data-user-rating="{{ user_rating }}">
+          {% for i in range(1, 6) %}
+          <button
+            type="button"
+            class="star text-3xl transition-transform hover:scale-110"
+            data-value="{{ i }}"
+            style="color: {% if i <= user_rating %}#facc15{% else %}#4b5563{% endif %};"
+          >★</button>
+          {% endfor %}
+        </div>
+        <div id="rating-feedback" class="text-xs text-gray-500">
+          {% if user_rating %}已评 {{ user_rating }} 星，可重新评分{% else %}点击星星评分{% endif %}
+        </div>
+        <div id="rating-result" class="text-sm text-teal-400 mt-2 hidden"></div>
+      </div>
+
+      <!-- Category link -->
+      <a href="/skills?category={{ skill.category.slug }}" class="block bg-navy-800 border border-navy-600 hover:border-teal-500 rounded-xl p-4 transition-colors group">
+        <p class="text-xs text-gray-500 mb-1">分类</p>
+        <p class="text-white font-medium group-hover:text-teal-400 transition-colors">
+          {{ skill.category.icon }} {{ skill.category.name }}
+        </p>
+        <p class="text-xs text-gray-500 mt-1">查看更多同类技能 →</p>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const container = document.getElementById('star-rating');
+  const stars = container.querySelectorAll('.star');
+  const feedback = document.getElementById('rating-feedback');
+  const result = document.getElementById('rating-result');
+  const skillId = container.dataset.skillId;
+  let userRating = parseInt(container.dataset.userRating) || 0;
+
+  function paint(hovered) {
+    stars.forEach((s, i) => {
+      s.style.color = i < hovered ? '#facc15' : '#4b5563';
+    });
+  }
+
+  stars.forEach((star, idx) => {
+    star.addEventListener('mouseenter', () => paint(idx + 1));
+    star.addEventListener('mouseleave', () => paint(userRating));
+    star.addEventListener('click', async () => {
+      const score = idx + 1;
+      try {
+        const res = await fetch(`/skills/${skillId}/rate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score }),
+        });
+        const data = await res.json();
+        userRating = score;
+        paint(userRating);
+        feedback.textContent = `已评 ${score} 星`;
+        result.textContent = `当前平均分：★ ${data.avg_rating} / 5（${data.rating_count} 票）`;
+        result.classList.remove('hidden');
+      } catch (e) {
+        feedback.textContent = '评分失败，请重试';
+      }
+    });
+  });
+
+  paint(userRating);
+})();
+</script>
+{% endblock %}

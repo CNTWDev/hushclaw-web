@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Hushclaw — 本地优先 AI 浏览器自动化{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="relative overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 pt-24 pb-32">
+  <div class="absolute inset-0 opacity-10 pointer-events-none select-none">
+    <div class="absolute top-16 left-1/4 w-96 h-96 rounded-full bg-teal-500 blur-3xl"></div>
+    <div class="absolute bottom-8 right-1/4 w-72 h-72 rounded-full bg-orange-400 blur-3xl"></div>
+  </div>
+  <div class="relative max-w-4xl mx-auto px-4 text-center">
+    <div class="inline-flex items-center gap-2 bg-navy-700 border border-navy-600 text-teal-400 text-xs font-medium px-3 py-1 rounded-full mb-6">
+      🦀 本地运行 · 隐私优先 · 开箱即用
+    </div>
+    <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">
+      让 AI 替你
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-600">
+        操控浏览器
+      </span>
+    </h1>
+    <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+      Hushclaw 是一款本地优先的 AI 浏览器自动化工具，无需云端，数据不离机，
+      一句话描述任务即可自动完成网页操作。
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="#install" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors">
+        立即安装
+      </a>
+      <a href="/skills" class="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-200 font-semibold px-8 py-3 rounded-lg transition-colors">
+        浏览技能商店
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Install Block -->
+<section id="install" class="max-w-3xl mx-auto px-4 -mt-12">
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden shadow-2xl">
+    <!-- Tabs -->
+    <div class="flex border-b border-navy-600">
+      <button
+        id="tab-mac"
+        onclick="switchTab('mac')"
+        class="tab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700"
+      >
+        🍎 macOS
+      </button>
+      <button
+        id="tab-win"
+        onclick="switchTab('win')"
+        class="tab-btn flex-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors"
+      >
+        🪟 Windows
+      </button>
+    </div>
+
+    <!-- Mac -->
+    <div id="panel-mac" class="p-6">
+      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">在终端中运行</p>
+      <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-green-400 border border-navy-600">
+        <code id="cmd-mac">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.sh)</code>
+        <button
+          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.sh)"
+          class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
+        >Copy</button>
+      </div>
+    </div>
+
+    <!-- Windows -->
+    <div id="panel-win" class="p-6 hidden">
+      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">在 PowerShell 中运行</p>
+      <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-blue-300 border border-navy-600">
+        <pre id="cmd-win" class="whitespace-pre-wrap">$url = "https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.ps1"
+$script = (Invoke-WebRequest -Uri $url).Content
+Invoke-Expression $script</pre>
+        <button
+          data-copy="$url = &quot;https://raw.githubusercontent.com/CNTWDev/ghostclaw/master/install.ps1&quot;&#10;$script = (Invoke-WebRequest -Uri $url).Content&#10;Invoke-Expression $script"
+          class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
+        >Copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+  <h2 class="text-3xl font-bold text-center mb-4">为什么选择 Hushclaw？</h2>
+  <p class="text-gray-400 text-center mb-14 max-w-xl mx-auto">五大核心优势，让自动化触手可及</p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+    {% set features = [
+      ("⚡", "极速高效", "AI 自动规划并执行多步骤操作，节省大量重复劳动时间"),
+      ("🚀", "零门槛上手", "无需编程基础，自然语言描述即可触发自动化流程"),
+      ("🔒", "隐私安全", "全程本地运行，数据不上云，敏感操作不留痕"),
+      ("🎯", "精准执行", "智能识别页面元素，抗噪音能力强，执行准确率高"),
+      ("💰", "极低成本", "开源免费，仅需本地算力，无需订阅任何云服务"),
+    ] %}
+    {% for icon, name, desc in features %}
+    <div class="bg-navy-800 border border-navy-600 rounded-xl p-6 hover:border-teal-500 transition-colors group">
+      <div class="text-3xl mb-3">{{ icon }}</div>
+      <h3 class="font-semibold text-white mb-2 group-hover:text-teal-400 transition-colors">{{ name }}</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">{{ desc }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Featured Skills CTA -->
+{% if featured_skills %}
+<section class="bg-navy-800 border-y border-navy-600 py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h2 class="text-2xl font-bold">热门技能</h2>
+        <p class="text-gray-400 text-sm mt-1">来自社区的高质量自动化技能</p>
+      </div>
+      <a href="/skills" class="text-teal-400 hover:text-teal-300 text-sm font-medium transition-colors">
+        查看全部 →
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for skill in featured_skills %}
+      <a href="/skills/{{ skill.id }}" class="bg-navy-900 border border-navy-600 rounded-xl p-5 hover:border-teal-500 transition-colors group">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <span class="text-xs bg-navy-700 text-gray-400 px-2 py-0.5 rounded-full">{{ skill.category.icon }} {{ skill.category.name }}</span>
+          </div>
+          {% if skill.platform != 'all' %}
+          <span class="text-xs text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
+            {{ '🍎 Mac' if skill.platform == 'mac' else '🪟 Win' }}
+          </span>
+          {% endif %}
+        </div>
+        <h3 class="font-semibold text-white group-hover:text-teal-400 transition-colors mb-1">{{ skill.title }}</h3>
+        <p class="text-gray-400 text-sm line-clamp-2 mb-4">{{ skill.short_desc }}</p>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <div class="flex items-center gap-1">
+            <span class="text-yellow-400">★</span>
+            <span>{{ skill.avg_rating if skill.avg_rating > 0 else '暂无评分' }}</span>
+          </div>
+          <span>{{ skill.install_count }} 次安装</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Bottom CTA -->
+<section class="max-w-2xl mx-auto text-center px-4 py-24">
+  <h2 class="text-3xl font-bold mb-4">准备好了吗？</h2>
+  <p class="text-gray-400 mb-8">安装 Hushclaw，探索数百个自动化技能</p>
+  <a href="#install" class="inline-block bg-teal-500 hover:bg-teal-400 text-white font-semibold px-10 py-3 rounded-lg transition-colors">
+    立即开始
+  </a>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tab) {
+  const panels = { mac: document.getElementById('panel-mac'), win: document.getElementById('panel-win') };
+  const tabs = { mac: document.getElementById('tab-mac'), win: document.getElementById('tab-win') };
+  Object.keys(panels).forEach(k => {
+    panels[k].classList.toggle('hidden', k !== tab);
+    tabs[k].classList.toggle('text-teal-400', k === tab);
+    tabs[k].classList.toggle('border-teal-400', k === tab);
+    tabs[k].classList.toggle('bg-navy-700', k === tab);
+    tabs[k].classList.toggle('text-gray-400', k !== tab);
+    tabs[k].classList.toggle('border-transparent', k !== tab);
+  });
+}
+</script>
+{% endblock %}

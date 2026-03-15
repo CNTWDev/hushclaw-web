@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}管理后台 — Hushclaw{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">管理后台</h1>
+      <p class="text-gray-400 text-sm mt-1">管理技能与分类</p>
+    </div>
+    <a href="/admin/logout" class="text-sm text-gray-400 hover:text-red-400 transition-colors">退出登录</a>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+    <div class="bg-navy-800 border border-navy-600 rounded-xl p-4">
+      <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">技能总数</p>
+      <p class="text-2xl font-bold text-white">{{ skills | length }}</p>
+    </div>
+    <div class="bg-navy-800 border border-navy-600 rounded-xl p-4">
+      <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">分类数量</p>
+      <p class="text-2xl font-bold text-white">{{ categories | length }}</p>
+    </div>
+    <div class="bg-navy-800 border border-navy-600 rounded-xl p-4">
+      <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">总安装次数</p>
+      <p class="text-2xl font-bold text-white">{{ skills | sum(attribute='install_count') }}</p>
+    </div>
+    <div class="bg-navy-800 border border-navy-600 rounded-xl p-4">
+      <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">已上架</p>
+      <p class="text-2xl font-bold text-white">{{ skills | selectattr('is_active') | list | length }}</p>
+    </div>
+  </div>
+
+  <!-- Actions row -->
+  <div class="flex flex-wrap gap-3 mb-8">
+    <a href="/admin/skills/new" class="bg-teal-500 hover:bg-teal-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      + 添加技能
+    </a>
+    <a href="/admin/categories/new" class="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-300 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      + 添加分类
+    </a>
+  </div>
+
+  <!-- Categories -->
+  <div class="bg-navy-800 border border-navy-600 rounded-xl mb-8 overflow-hidden">
+    <div class="px-5 py-3 border-b border-navy-600">
+      <h2 class="font-semibold text-sm">分类管理</h2>
+    </div>
+    <div class="divide-y divide-navy-600">
+      {% for cat in categories %}
+      <div class="flex items-center justify-between px-5 py-3">
+        <span class="text-sm">{{ cat.icon }} {{ cat.name }} <span class="text-gray-500 ml-2 text-xs">{{ cat.slug }}</span></span>
+        <form method="post" action="/admin/categories/{{ cat.id }}/delete" onsubmit="return confirm('确认删除分类？')">
+          <button type="submit" class="text-xs text-red-400 hover:text-red-300 transition-colors">删除</button>
+        </form>
+      </div>
+      {% else %}
+      <p class="px-5 py-4 text-gray-500 text-sm">暂无分类</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Skills table -->
+  <div class="bg-navy-800 border border-navy-600 rounded-xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-navy-600">
+      <h2 class="font-semibold text-sm">技能列表</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-navy-700 text-gray-400 text-xs uppercase tracking-wider">
+          <tr>
+            <th class="px-4 py-3 text-left">ID</th>
+            <th class="px-4 py-3 text-left">标题</th>
+            <th class="px-4 py-3 text-left">分类</th>
+            <th class="px-4 py-3 text-left">平台</th>
+            <th class="px-4 py-3 text-right">安装</th>
+            <th class="px-4 py-3 text-right">评分</th>
+            <th class="px-4 py-3 text-center">状态</th>
+            <th class="px-4 py-3 text-right">操作</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-navy-600">
+          {% for skill in skills %}
+          <tr class="hover:bg-navy-700/50 transition-colors">
+            <td class="px-4 py-3 text-gray-500">{{ skill.id }}</td>
+            <td class="px-4 py-3 text-white font-medium max-w-xs truncate">{{ skill.title }}</td>
+            <td class="px-4 py-3 text-gray-400">{{ skill.category.icon }} {{ skill.category.name }}</td>
+            <td class="px-4 py-3 text-gray-400">
+              {% if skill.platform == 'mac' %}🍎
+              {% elif skill.platform == 'windows' %}🪟
+              {% else %}全{% endif %}
+            </td>
+            <td class="px-4 py-3 text-right text-gray-300">{{ skill.install_count }}</td>
+            <td class="px-4 py-3 text-right text-gray-300">
+              {% if skill.avg_rating > 0 %}★ {{ skill.avg_rating }}{% else %}—{% endif %}
+            </td>
+            <td class="px-4 py-3 text-center">
+              {% if skill.is_active %}
+              <span class="text-xs bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full">上架</span>
+              {% else %}
+              <span class="text-xs bg-gray-700 text-gray-500 px-2 py-0.5 rounded-full">下架</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex justify-end gap-3">
+                <a href="/admin/skills/{{ skill.id }}/edit" class="text-teal-400 hover:text-teal-300 transition-colors">编辑</a>
+                <form method="post" action="/admin/skills/{{ skill.id }}/delete" onsubmit="return confirm('确认删除？')">
+                  <button type="submit" class="text-red-400 hover:text-red-300 transition-colors">删除</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="px-4 py-8 text-center text-gray-500">暂无技能，请添加</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Hushclaw — AI 浏览器自动化工具{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0d1117', 800: '#161b22', 700: '#21262d', 600: '#30363d' },
+            teal:  { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' },
+            orange:{ 400: '#fb923c', 500: '#f97316' },
+          }
+        }
+      }
+    }
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-navy-900 text-gray-100 min-h-screen flex flex-col">
+
+  <!-- Nav -->
+  <nav class="bg-navy-800 border-b border-navy-600 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="/" class="flex items-center gap-2 text-xl font-bold text-teal-400 hover:text-teal-300 transition-colors">
+          <span class="text-2xl">🦀</span> Hushclaw
+        </a>
+        <div class="flex items-center gap-6 text-sm font-medium">
+          <a href="/" class="text-gray-300 hover:text-white transition-colors">首页</a>
+          <a href="/skills" class="text-gray-300 hover:text-white transition-colors">技能商店</a>
+          <a href="/admin" class="text-gray-400 hover:text-gray-200 transition-colors text-xs">管理</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-navy-800 border-t border-navy-600 py-10 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-teal-400 font-bold">
+          <span class="text-xl">🦀</span> Hushclaw
+        </div>
+        <p class="text-gray-500 text-sm">本地优先的 AI 浏览器自动化工具 · 隐私安全 · 开箱即用</p>
+        <div class="flex gap-4 text-sm text-gray-400">
+          <a href="/" class="hover:text-white transition-colors">首页</a>
+          <a href="/skills" class="hover:text-white transition-colors">技能商店</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

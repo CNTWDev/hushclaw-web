@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}添加分类 — Hushclaw Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center gap-3 mb-8">
+    <a href="/admin" class="text-gray-400 hover:text-white transition-colors text-sm">← 返回后台</a>
+    <span class="text-gray-600">/</span>
+    <h1 class="text-xl font-bold">添加分类</h1>
+  </div>
+
+  <div class="bg-navy-800 border border-navy-600 rounded-xl p-6">
+    {% if error %}
+    <div class="bg-red-900/30 border border-red-700 text-red-400 text-sm px-4 py-3 rounded-lg mb-5">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/admin/categories/new" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">图标（emoji）</label>
+        <input type="text" name="icon" value="📦" maxlength="4"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="🔧" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">名称 *</label>
+        <input type="text" name="name" required
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="分类名称" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Slug（URL标识）*</label>
+        <input type="text" name="slug" required
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="office-work" />
+        <p class="text-xs text-gray-500 mt-1">仅限字母、数字、连字符，用于 URL</p>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-teal-500 hover:bg-teal-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
+          创建分类
+        </button>
+        <a href="/admin" class="flex-1 text-center bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-300 font-medium py-2.5 rounded-lg transition-colors">
+          取消
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

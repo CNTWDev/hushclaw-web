@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{% if skill %}编辑技能{% else %}添加技能{% endif %} — Hushclaw Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center gap-3 mb-8">
+    <a href="/admin" class="text-gray-400 hover:text-white transition-colors text-sm">← 返回后台</a>
+    <span class="text-gray-600">/</span>
+    <h1 class="text-xl font-bold">{% if skill %}编辑技能{% else %}添加技能{% endif %}</h1>
+  </div>
+
+  <div class="bg-navy-800 border border-navy-600 rounded-xl p-6">
+    {% if error %}
+    <div class="bg-red-900/30 border border-red-700 text-red-400 text-sm px-4 py-3 rounded-lg mb-5">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% if skill %}/admin/skills/{{ skill.id }}/edit{% else %}/admin/skills/new{% endif %}" class="space-y-5">
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">标题 *</label>
+        <input type="text" name="title" required value="{{ skill.title if skill else '' }}"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="技能名称" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">简短描述 *</label>
+        <input type="text" name="short_desc" required value="{{ skill.short_desc if skill else '' }}"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="一句话描述，不超过100字" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">详细描述 *</label>
+        <textarea name="description" required rows="6"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors resize-none"
+          placeholder="详细介绍技能功能、使用场景、注意事项等">{{ skill.description if skill else '' }}</textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">分类 *</label>
+          <select name="category_id" required
+            class="w-full bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors">
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if skill and skill.category_id == cat.id %}selected{% endif %}>
+              {{ cat.icon }} {{ cat.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">平台</label>
+          <select name="platform"
+            class="w-full bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors">
+            <option value="all" {% if not skill or skill.platform == 'all' %}selected{% endif %}>全平台</option>
+            <option value="mac" {% if skill and skill.platform == 'mac' %}selected{% endif %}>🍎 macOS</option>
+            <option value="windows" {% if skill and skill.platform == 'windows' %}selected{% endif %}>🪟 Windows</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">作者</label>
+        <input type="text" name="author" value="{{ skill.author if skill else 'Hushclaw Team' }}"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="作者名称" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">标签（逗号分隔）</label>
+        <input type="text" name="tags" value="{{ skill.tags if skill else '' }}"
+          class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="标签1, 标签2, 标签3" />
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input type="checkbox" name="is_active" id="is_active" value="on"
+          {% if not skill or skill.is_active %}checked{% endif %}
+          class="w-4 h-4 accent-teal-500 rounded" />
+        <label for="is_active" class="text-sm text-gray-300">上架（在技能商店显示）</label>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-teal-500 hover:bg-teal-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
+          {% if skill %}保存修改{% else %}创建技能{% endif %}
+        </button>
+        <a href="/admin" class="flex-1 text-center bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-300 font-medium py-2.5 rounded-lg transition-colors">
+          取消
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
