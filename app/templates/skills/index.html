@@ -5,58 +5,84 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold">🛒 Skills Store</h1>
-    <p class="text-gray-400 mt-2">Discover and install community-contributed skills</p>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white">Skills Store</h1>
+      <p class="text-gray-400 mt-1 text-sm">Discover and install community-contributed skills</p>
+    </div>
+    {% if request.state.current_user %}
+    <a href="/skills/submit"
+       class="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-white font-semibold text-sm transition-colors">
+      + Submit Skill
+    </a>
+    {% else %}
+    <a href="/auth/login"
+       class="px-4 py-2 rounded-lg border border-teal-500 text-teal-400 hover:bg-teal-500 hover:text-white text-sm font-semibold transition-colors">
+      Sign in to submit
+    </a>
+    {% endif %}
   </div>
 
   <!-- Search + Sort -->
   <form method="get" action="/skills" class="flex flex-col sm:flex-row gap-3 mb-8">
     <input
-      type="text"
-      name="q"
-      value="{{ search_query }}"
+      type="text" name="q" value="{{ search_query }}"
       placeholder="Search skills..."
-      class="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 transition-colors"
+      class="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-2 text-sm text-white
+             placeholder-gray-500 focus:outline-none focus:border-teal-500 transition-colors"
     />
     <input type="hidden" name="category" value="{{ active_category }}" />
-    <select name="sort" onchange="this.form.submit()" class="bg-navy-800 border border-navy-600 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-teal-500 transition-colors">
+    <select name="sort" onchange="this.form.submit()"
+            class="bg-navy-800 border border-navy-600 rounded-lg px-3 py-2 text-sm text-gray-300
+                   focus:outline-none focus:border-teal-500 transition-colors">
       <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
-      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
-      <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+      <option value="newest"  {% if sort == 'newest'  %}selected{% endif %}>Newest</option>
+      <option value="rating"  {% if sort == 'rating'  %}selected{% endif %}>Top Rated</option>
     </select>
-    <button type="submit" class="bg-teal-500 hover:bg-teal-400 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
+    <button type="submit"
+            class="bg-teal-500 hover:bg-teal-400 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
       Search
     </button>
   </form>
 
   <!-- Category tabs -->
-  <div class="flex flex-wrap gap-2 mb-10">
-    <a
-      href="/skills?sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
-      class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors {% if not active_category %}bg-teal-500 text-white{% else %}bg-navy-700 text-gray-300 hover:bg-navy-600{% endif %}"
-    >All</a>
+  <div class="flex flex-wrap gap-2 mb-8">
+    <a href="/skills?sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
+       class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors
+              {% if not active_category %}bg-teal-500 text-white{% else %}bg-navy-700 text-gray-300 hover:bg-navy-600{% endif %}">
+      All
+    </a>
     {% for cat in categories %}
-    <a
-      href="/skills?category={{ cat.slug }}&sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
-      class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors {% if active_category == cat.slug %}bg-teal-500 text-white{% else %}bg-navy-700 text-gray-300 hover:bg-navy-600{% endif %}"
-    >{{ cat.icon }} {{ cat.name }}</a>
+    <a href="/skills?category={{ cat.slug }}&sort={{ sort }}{% if search_query %}&q={{ search_query }}{% endif %}"
+       class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors
+              {% if active_category == cat.slug %}bg-teal-500 text-white{% else %}bg-navy-700 text-gray-300 hover:bg-navy-600{% endif %}">
+      {{ cat.icon }} {{ cat.name }}
+    </a>
     {% endfor %}
   </div>
+
+  <!-- Results count -->
+  {% if total is defined %}
+  <p class="text-gray-500 text-xs mb-4">{{ total }} skill{{ 's' if total != 1 else '' }} found</p>
+  {% endif %}
 
   <!-- Grid -->
   {% if skills %}
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
     {% for skill in skills %}
-    <a href="/skills/{{ skill.id }}" class="bg-navy-800 border border-navy-600 rounded-xl p-5 hover:border-teal-500 transition-colors group flex flex-col">
+    <a href="/skills/{{ skill.id }}"
+       class="bg-navy-800 border border-navy-600 rounded-xl p-5 hover:border-teal-500 transition-colors group flex flex-col">
       <div class="flex items-start justify-between mb-3">
         <span class="text-xs bg-navy-700 text-gray-400 px-2 py-0.5 rounded-full">
           {{ skill.category.icon }} {{ skill.category.name }}
         </span>
-        <span class="text-xs {% if skill.platform == 'mac' %}text-gray-300 bg-gray-700{% elif skill.platform == 'windows' %}text-blue-300 bg-blue-900/30{% else %}text-gray-500{% endif %} px-2 py-0.5 rounded-full">
+        <span class="text-xs px-2 py-0.5 rounded-full
+          {% if skill.platform == 'mac' %}text-gray-300 bg-gray-700
+          {% elif skill.platform == 'windows' %}text-blue-300 bg-blue-900/30
+          {% else %}text-gray-600 bg-navy-700{% endif %}">
           {% if skill.platform == 'mac' %}🍎 Mac
           {% elif skill.platform == 'windows' %}🪟 Windows
-          {% else %}All Platforms{% endif %}
+          {% else %}All{% endif %}
         </span>
       </div>
 
@@ -73,22 +99,49 @@
 
       <div class="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-navy-600">
         <div class="flex items-center gap-1">
-          {% set avg = skill.avg_rating %}
-          {% if avg > 0 %}
+          {% if skill.avg_rating > 0 %}
           <span class="text-yellow-400">★</span>
-          <span>{{ avg }} ({{ skill.rating_count }})</span>
+          <span>{{ skill.avg_rating }} ({{ skill.rating_count }})</span>
           {% else %}
-          <span>No ratings yet</span>
+          <span>No ratings</span>
           {% endif %}
         </div>
         <div class="flex items-center gap-3">
           <span>↓ {{ skill.install_count }}</span>
-          <span class="text-gray-600">{{ skill.author }}</span>
+          <span class="text-gray-600 truncate max-w-[80px]">{{ skill.author }}</span>
         </div>
       </div>
     </a>
     {% endfor %}
   </div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <nav class="flex items-center justify-center gap-2 mt-12">
+    {% if page > 1 %}
+    <a href="?category={{ active_category }}&q={{ search_query }}&sort={{ sort }}&page={{ page - 1 }}"
+       class="px-4 py-2 rounded-lg bg-navy-700 hover:bg-navy-600 text-gray-300 text-sm transition-colors">
+      ← Prev
+    </a>
+    {% endif %}
+
+    {% for p in range([1, page - 2]|max, [total_pages + 1, page + 3]|min) %}
+    <a href="?category={{ active_category }}&q={{ search_query }}&sort={{ sort }}&page={{ p }}"
+       class="px-3 py-2 rounded-lg text-sm transition-colors
+              {% if p == page %}bg-teal-500 text-white{% else %}bg-navy-700 hover:bg-navy-600 text-gray-300{% endif %}">
+      {{ p }}
+    </a>
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <a href="?category={{ active_category }}&q={{ search_query }}&sort={{ sort }}&page={{ page + 1 }}"
+       class="px-4 py-2 rounded-lg bg-navy-700 hover:bg-navy-600 text-gray-300 text-sm transition-colors">
+      Next →
+    </a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
   {% else %}
   <div class="text-center py-24 text-gray-500">
     <div class="text-5xl mb-4">🔍</div>
@@ -96,5 +149,6 @@
     <p class="text-sm mt-2">Try a different keyword or category</p>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

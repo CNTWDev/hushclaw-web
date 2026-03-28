@@ -1,0 +1,797 @@
+openapi: "3.1.0"
+
+info:
+  title: Hushclaw API
+  version: "1.0.0"
+  description: |
+    Hushclaw Skill Store public & authenticated REST API.
+
+    ## Authentication
+
+    Protected endpoints accept credentials in either of two ways:
+
+    | Method | Value |
+    |--------|-------|
+    | HTTP Header | `Authorization: Bearer <token>` |
+    | Cookie | `hc_session=<token>` |
+
+    Obtain a token via the **Auth** flow:
+    1. `POST /api/v1/auth/send-code` – request a 6-digit OTP by email.
+    2. `POST /api/v1/auth/verify-code` – exchange the OTP for a Bearer token (valid 30 days).
+
+servers:
+  - url: /api/v1
+    description: Current server (relative)
+
+tags:
+  - name: Categories
+    description: Browse skill categories
+  - name: Skills
+    description: Search, view, download and submit skills
+  - name: Auth
+    description: Email OTP authentication
+  - name: Account
+    description: Current-user profile
+  - name: Files
+    description: File upload helper
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Security schemes
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Token obtained from `POST /api/v1/auth/verify-code`
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: hc_session
+      description: Session cookie set after web login
+
+  # ── Reusable schemas ────────────────────────────────────────────────────────
+  schemas:
+
+    Category:
+      type: object
+      properties:
+        slug:
+          type: string
+          example: productivity
+        name:
+          type: string
+          example: Productivity
+        icon:
+          type: string
+          example: "⚡"
+        skill_count:
+          type: integer
+          example: 12
+
+    SkillSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        title:
+          type: string
+          example: "Auto Responder"
+        short_desc:
+          type: string
+          example: "Automatically replies to common messages."
+        author:
+          type: string
+          example: "alice@example.com"
+        version:
+          type: string
+          example: "1.2.0"
+        platform:
+          type: string
+          enum: [all, mac, windows]
+          example: all
+        tags:
+          type: string
+          example: "automation,messaging"
+        category:
+          type: string
+          nullable: true
+          example: productivity
+        category_name:
+          type: string
+          nullable: true
+          example: Productivity
+        install_count:
+          type: integer
+          example: 350
+        avg_rating:
+          type: number
+          format: float
+          example: 4.3
+        rating_count:
+          type: integer
+          example: 27
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-15T08:30:00"
+
+    SkillDetail:
+      allOf:
+        - $ref: "#/components/schemas/SkillSummary"
+        - type: object
+          properties:
+            description:
+              type: string
+              example: "A detailed description of what this skill does."
+
+    SkillDownload:
+      allOf:
+        - $ref: "#/components/schemas/SkillDetail"
+        - type: object
+          properties:
+            source_file:
+              type: string
+              nullable: true
+              example: "/static/uploads/3_a1b2c3d4.zip"
+
+    SkillListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 84
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+        total_pages:
+          type: integer
+          example: 5
+        has_prev:
+          type: boolean
+          example: false
+        has_next:
+          type: boolean
+          example: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillSummary"
+
+    SkillUploadRequest:
+      type: object
+      required:
+        - title
+        - short_desc
+        - description
+        - category_slug
+      properties:
+        title:
+          type: string
+          example: "Auto Responder"
+        short_desc:
+          type: string
+          maxLength: 300
+          example: "Automatically replies to common messages."
+        description:
+          type: string
+          example: "Full markdown description of the skill."
+        category_slug:
+          type: string
+          example: productivity
+        platform:
+          type: string
+          enum: [all, mac, windows]
+          default: all
+        tags:
+          type: string
+          default: ""
+          example: "automation,messaging"
+        version:
+          type: string
+          default: "1.0.0"
+          example: "1.2.0"
+        source_file:
+          type: string
+          nullable: true
+          description: URL returned by `POST /api/v1/files/upload`
+          example: "/static/uploads/3_a1b2c3d4.zip"
+
+    SkillUploadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 99
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          example: pending
+        action:
+          type: string
+          enum: [created, updated, duplicate]
+          example: created
+        message:
+          type: string
+          example: "Your skill is pending review."
+
+    SkillStatusResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 99
+        title:
+          type: string
+          example: "Auto Responder"
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          example: pending
+        review_note:
+          type: string
+          nullable: true
+          example: null
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-03-01T12:00:00"
+
+    RateRequest:
+      type: object
+      required:
+        - score
+      properties:
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+
+    RateResponse:
+      type: object
+      properties:
+        avg_rating:
+          type: number
+          format: float
+          example: 4.2
+        rating_count:
+          type: integer
+          example: 28
+
+    SendCodeRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+
+    VerifyCodeRequest:
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: "482910"
+        client_name:
+          type: string
+          nullable: true
+          description: Optional label for the token (e.g. app name or device)
+          example: "My CLI Tool"
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "hc_abc123..."
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          description: Seconds until expiry
+          example: 2592000
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 7
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+        display_name:
+          type: string
+          nullable: true
+          example: "Alice"
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-11-01T09:00:00"
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-03-28T10:00:00"
+
+    FileUploadResponse:
+      type: object
+      properties:
+        file_url:
+          type: string
+          example: "/static/uploads/3_a1b2c3d4.zip"
+        filename:
+          type: string
+          example: "3_a1b2c3d4.zip"
+        size:
+          type: integer
+          description: File size in bytes
+          example: 204800
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "Skill not found"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths
+# ─────────────────────────────────────────────────────────────────────────────
+paths:
+
+  # ── Categories ──────────────────────────────────────────────────────────────
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List all categories
+      description: Returns every category with the count of approved skills it contains.
+      operationId: listCategories
+      responses:
+        "200":
+          description: Category list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  # ── Skills ──────────────────────────────────────────────────────────────────
+  /skills:
+    get:
+      tags: [Skills]
+      summary: List / search skills
+      description: Returns a paginated list of approved skills, with optional filtering and sorting.
+      operationId: listSkills
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category slug
+          schema:
+            type: string
+          example: productivity
+        - name: q
+          in: query
+          description: Full-text search across title, short_desc and tags
+          schema:
+            type: string
+          example: "auto reply"
+        - name: platform
+          in: query
+          description: Filter by platform
+          schema:
+            type: string
+            enum: [all, mac, windows]
+        - name: sort
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [popular, newest, oldest, rating]
+            default: popular
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Paginated skill list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillListResponse"
+        "400":
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags: [Skills]
+      summary: Submit a skill for review
+      description: |
+        Submit a new skill. Requires authentication.
+
+        **Deduplication logic:**
+        - If the exact content already exists → returns `action: duplicate` (idempotent).
+        - If you have a *pending* skill with the same title → the pending entry is updated.
+        - If you have an *approved* skill with the same title → a new revision is created with `parent_id` set to the original.
+        - If you have a *rejected* skill with the same title → a fresh submission is created.
+      operationId: uploadSkill
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillUploadRequest"
+      responses:
+        "201":
+          description: Skill submitted (or duplicate detected)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillUploadResponse"
+        "400":
+          description: Unknown category or validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /skills/{skill_id}:
+    get:
+      tags: [Skills]
+      summary: Get skill detail
+      description: Returns full metadata for a single approved skill. Does **not** include `source_file`.
+      operationId: getSkill
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 42
+      responses:
+        "200":
+          description: Skill detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillDetail"
+        "404":
+          description: Skill not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /skills/{skill_id}/download:
+    get:
+      tags: [Skills]
+      summary: Download a skill
+      description: |
+        Returns full metadata **including** `source_file`.
+        Increments the skill's `install_count` by 1.
+      operationId: downloadSkill
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 42
+      responses:
+        "200":
+          description: Full skill payload with source_file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillDownload"
+        "404":
+          description: Skill not found or not approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /skills/{skill_id}/rate:
+    post:
+      tags: [Skills]
+      summary: Rate a skill
+      description: |
+        Submit a rating (1–5) for an approved skill. Requires authentication.
+
+        One rating per user per skill; re-submitting updates the existing rating.
+      operationId: rateSkill
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RateRequest"
+      responses:
+        "200":
+          description: Updated rating statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateResponse"
+        "400":
+          description: Score out of range (must be 1–5)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Skill not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /skills/{skill_id}/status:
+    get:
+      tags: [Skills]
+      summary: Check submission status
+      description: |
+        Returns the review status of a skill you submitted. Requires authentication.
+        You can only check the status of your **own** submissions.
+      operationId: getSkillStatus
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 99
+      responses:
+        "200":
+          description: Submission status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkillStatusResponse"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Not your submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Skill not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Auth ────────────────────────────────────────────────────────────────────
+  /auth/send-code:
+    post:
+      tags: [Auth]
+      summary: Send OTP email
+      description: |
+        Sends a 6-digit verification code to the provided email address.
+
+        **Rate limit:** One code per 60 seconds. Returns `429` if called again too soon.
+        The code expires in 10 minutes (configurable via `OTP_EXPIRE_MINUTES`).
+      operationId: sendCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendCodeRequest"
+      responses:
+        "200":
+          description: Code sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    example: "Verification code sent. Check your email."
+        "422":
+          description: Invalid email address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit – please wait 60 seconds
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/verify-code:
+    post:
+      tags: [Auth]
+      summary: Verify OTP and obtain token
+      description: |
+        Exchange a valid 6-digit OTP for a long-lived Bearer token (default: 30 days).
+
+        Use the returned `access_token` as `Authorization: Bearer <token>` in subsequent requests.
+
+        **Failure rules:**
+        - After **3 wrong attempts** the OTP is invalidated; request a new one.
+        - Expired OTPs are rejected immediately.
+      operationId: verifyCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyCodeRequest"
+      responses:
+        "200":
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        "400":
+          description: Invalid or expired OTP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Validation error (e.g. invalid email format)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Account ─────────────────────────────────────────────────────────────────
+  /account/me:
+    get:
+      tags: [Account]
+      summary: Get current user profile
+      description: Returns the authenticated user's profile. Requires authentication.
+      operationId: getMe
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Account is disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── Files ────────────────────────────────────────────────────────────────────
+  /files/upload:
+    post:
+      tags: [Files]
+      summary: Upload a skill file
+      description: |
+        Upload a file (step 1 of 2 when submitting a skill with an attachment).
+        Returns a `file_url` to pass as `source_file` in `POST /api/v1/skills`.
+
+        **Allowed extensions:** `.zip` `.py` `.json` `.yaml` `.yml` `.md` `.txt`
+
+        **Max size:** `MAX_UPLOAD_SIZE_MB` env var (default **10 MB**)
+
+        The stored filename is `{user_id}_{8-char-uuid}{ext}`.
+      operationId: uploadFile
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: File stored successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileUploadResponse"
+        "400":
+          description: Disallowed file extension
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "413":
+          description: File exceeds maximum allowed size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

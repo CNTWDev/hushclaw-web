@@ -367,6 +367,7 @@ for i, s in enumerate(skills_data):
         author=s["author"],
         tags=s["tags"],
         is_active=True,
+        status="approved",
         created_at=created,
     )
     db.add(skill)

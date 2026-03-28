@@ -1,12 +1,13 @@
 import os
-from fastapi import APIRouter, Request, Depends, Form, HTTPException
+from typing import Optional
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from app.database import get_db
-from app.models import Category, Skill
+from app.models import Category, Skill, User
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -62,13 +63,33 @@ async def logout():
 
 
 @router.get("")
-async def dashboard(request: Request, db: Session = Depends(get_db)):
+async def dashboard(
+    request: Request,
+    db: Session = Depends(get_db),
+    status: Optional[str] = Query(None),
+):
     require_admin(request)
-    skills = db.query(Skill).order_by(Skill.created_at.desc()).all()
+    query = db.query(Skill)
+    if status:
+        query = query.filter(Skill.status == status)
+    # Default: pending first, then others
+    skills = query.order_by(
+        (Skill.status == "pending").desc(),
+        Skill.created_at.desc(),
+    ).all()
     categories = db.query(Category).all()
+    pending_count = db.query(Skill).filter(Skill.status == "pending").count()
+    user_count = db.query(User).count()
     return templates.TemplateResponse(
         "admin/dashboard.html",
-        {"request": request, "skills": skills, "categories": categories},
+        {
+            "request": request,
+            "skills": skills,
+            "categories": categories,
+            "pending_count": pending_count,
+            "user_count": user_count,
+            "status_filter": status or "",
+        },
     )
 
 
@@ -194,4 +215,54 @@ async def delete_category(cat_id: int, request: Request, db: Session = Depends(g
     if cat:
         db.delete(cat)
         db.commit()
+    return RedirectResponse(url="/admin", status_code=302)
+
+
+@router.post("/skills/{skill_id}/approve")
+async def approve_skill(skill_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    skill = db.query(Skill).filter(Skill.id == skill_id).first()
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    if skill.parent_id:
+        # Promote update: copy content onto the parent approved record
+        parent = db.query(Skill).filter(Skill.id == skill.parent_id).first()
+        if parent:
+            parent.title = skill.title
+            parent.short_desc = skill.short_desc
+            parent.description = skill.description
+            parent.category_id = skill.category_id
+            parent.platform = skill.platform
+            parent.author = skill.author
+            parent.tags = skill.tags
+            parent.version = skill.version
+            parent.source_file = skill.source_file
+            parent.content_hash = skill.content_hash
+            parent.review_note = None
+        db.delete(skill)
+    else:
+        skill.status = "approved"
+        skill.is_active = True
+        skill.review_note = None
+
+    db.commit()
+    return RedirectResponse(url="/admin", status_code=302)
+
+
+@router.post("/skills/{skill_id}/reject")
+async def reject_skill(
+    skill_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    review_note: str = Form(""),
+):
+    require_admin(request)
+    skill = db.query(Skill).filter(Skill.id == skill_id).first()
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+    skill.status = "rejected"
+    skill.is_active = False
+    skill.review_note = review_note.strip() or None
+    db.commit()
     return RedirectResponse(url="/admin", status_code=302)

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Submit a Skill — Hushclaw{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <a href="/skills" class="text-sm text-gray-500 hover:text-teal-400 transition-colors">← Back to Store</a>
+    <h1 class="text-3xl font-bold text-white mt-3">Submit a Skill</h1>
+    <p class="text-gray-400 text-sm mt-1">Your skill will be reviewed before appearing in the store.</p>
+  </div>
+
+  {% if error %}
+  <div class="mb-6 px-4 py-3 rounded-lg bg-red-900/40 border border-red-700 text-red-300 text-sm">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="post" action="/skills/submit" class="space-y-6">
+
+    <!-- Title -->
+    <div>
+      <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Title <span class="text-red-400">*</span></label>
+      <input id="title" name="title" type="text" required maxlength="200"
+             value="{{ (form.title if form else '') or '' }}"
+             placeholder="e.g. Smart File Organizer"
+             class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                    focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+    </div>
+
+    <!-- Short description -->
+    <div>
+      <label for="short_desc" class="block text-sm font-medium text-gray-300 mb-1">
+        Short Description <span class="text-red-400">*</span>
+        <span class="text-gray-500 font-normal ml-1">(max 300 chars)</span>
+      </label>
+      <input id="short_desc" name="short_desc" type="text" required maxlength="300"
+             value="{{ (form.short_desc if form else '') or '' }}"
+             placeholder="One-line summary of what this skill does"
+             class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                    focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+    </div>
+
+    <!-- Category + Platform row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="category_slug" class="block text-sm font-medium text-gray-300 mb-1">Category <span class="text-red-400">*</span></label>
+        <select id="category_slug" name="category_slug" required
+                class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white
+                       focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+          <option value="">Select a category</option>
+          {% for cat in categories %}
+          <option value="{{ cat.slug }}"
+            {% if (form and form.category_slug == cat.slug) %}selected{% endif %}>
+            {{ cat.icon }} {{ cat.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="platform" class="block text-sm font-medium text-gray-300 mb-1">Platform</label>
+        <select id="platform" name="platform"
+                class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white
+                       focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+          <option value="all"     {% if not form or form.get('platform','all') == 'all' %}selected{% endif %}>All Platforms</option>
+          <option value="mac"     {% if form and form.get('platform') == 'mac' %}selected{% endif %}>🍎 macOS</option>
+          <option value="windows" {% if form and form.get('platform') == 'windows' %}selected{% endif %}>🪟 Windows</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Version + Tags row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="version" class="block text-sm font-medium text-gray-300 mb-1">Version</label>
+        <input id="version" name="version" type="text" maxlength="20"
+               value="{{ (form.version if form else '') or '1.0.0' }}"
+               placeholder="1.0.0"
+               class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                      focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+      </div>
+      <div>
+        <label for="tags" class="block text-sm font-medium text-gray-300 mb-1">
+          Tags <span class="text-gray-500 font-normal">(comma-separated)</span>
+        </label>
+        <input id="tags" name="tags" type="text" maxlength="500"
+               value="{{ (form.tags if form else '') or '' }}"
+               placeholder="ai, productivity, files"
+               class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                      focus:outline-none focus:ring-2 focus:ring-teal-500 transition" />
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-300 mb-1">
+        Full Description <span class="text-red-400">*</span>
+      </label>
+      <textarea id="description" name="description" required rows="8"
+                placeholder="Describe what your skill does, how to use it, requirements, etc."
+                class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                       focus:outline-none focus:ring-2 focus:ring-teal-500 transition resize-y font-mono text-sm">{{ (form.description if form else '') or '' }}</textarea>
+    </div>
+
+    <!-- Source file -->
+    <div>
+      <label for="source_file" class="block text-sm font-medium text-gray-300 mb-1">
+        Source / Download URL
+        <span class="text-gray-500 font-normal ml-1">(optional — paste a URL or inline content)</span>
+      </label>
+      <textarea id="source_file" name="source_file" rows="4"
+                placeholder="https://... or paste the skill source directly"
+                class="w-full px-4 py-2.5 rounded-lg bg-navy-800 border border-navy-600 text-white placeholder-gray-500
+                       focus:outline-none focus:ring-2 focus:ring-teal-500 transition resize-y font-mono text-sm">{{ (form.source_file if form else '') or '' }}</textarea>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex items-center justify-between pt-2">
+      <a href="/skills" class="text-sm text-gray-400 hover:text-gray-200 transition-colors">Cancel</a>
+      <button type="submit"
+              class="px-6 py-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-white font-semibold
+                     transition-colors focus:outline-none focus:ring-2 focus:ring-teal-400">
+        Submit for Review
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

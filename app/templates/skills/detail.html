@@ -16,10 +16,11 @@
   </nav>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
     <!-- Main content -->
     <div class="lg:col-span-2">
       <div class="flex items-start gap-4 mb-6">
-        <div class="text-4xl">{{ skill.category.icon }}</div>
+        <div class="text-4xl shrink-0">{{ skill.category.icon }}</div>
         <div>
           <h1 class="text-2xl font-bold text-white">{{ skill.title }}</h1>
           <p class="text-gray-400 mt-1">{{ skill.short_desc }}</p>
@@ -45,13 +46,24 @@
     <!-- Sidebar -->
     <div class="space-y-5">
 
+      <!-- Download button -->
+      <button
+        id="download-btn"
+        data-skill-id="{{ skill.id }}"
+        data-skill-title="{{ skill.title }}"
+        class="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-semibold
+               transition-colors focus:outline-none focus:ring-2 focus:ring-teal-400"
+      >
+        ↓ Download
+      </button>
+
       <!-- Stats -->
       <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Stats</h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span class="text-gray-400">Installs</span>
-            <span class="text-white font-medium">{{ skill.install_count }}</span>
+            <span class="text-gray-400">Downloads</span>
+            <span id="install-count" class="text-white font-medium">{{ skill.install_count }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-400">Rating</span>
@@ -64,6 +76,10 @@
           <div class="flex justify-between">
             <span class="text-gray-400">Author</span>
             <span class="text-white font-medium">{{ skill.author }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">Version</span>
+            <span class="text-white font-medium">{{ skill.version }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-400">Platform</span>
@@ -83,29 +99,37 @@
       <!-- Star Rating -->
       <div class="bg-navy-800 border border-navy-600 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Rate this skill</h3>
-        <div id="star-rating" class="flex gap-2 mb-3" data-skill-id="{{ skill.id }}" data-user-rating="{{ user_rating }}">
+
+        {% if current_user %}
+        <div id="star-rating" class="flex gap-2 mb-3"
+             data-skill-id="{{ skill.id }}" data-user-rating="{{ user_rating }}">
           {% for i in range(1, 6) %}
-          <button
-            type="button"
-            class="star text-3xl transition-transform hover:scale-110"
-            data-value="{{ i }}"
-            style="color: {% if i <= user_rating %}#facc15{% else %}#4b5563{% endif %};"
-          >★</button>
+          <button type="button" class="star text-3xl transition-transform hover:scale-110"
+                  data-value="{{ i }}"
+                  style="color: {% if i <= user_rating %}#facc15{% else %}#4b5563{% endif %};">★</button>
           {% endfor %}
         </div>
         <div id="rating-feedback" class="text-xs text-gray-500">
           {% if user_rating %}Rated {{ user_rating }} stars — click to change{% else %}Click a star to rate{% endif %}
         </div>
         <div id="rating-result" class="text-sm text-teal-400 mt-2 hidden"></div>
+
+        {% else %}
+        <p class="text-gray-500 text-sm">
+          <a href="/auth/login" class="text-teal-400 hover:text-teal-300 transition-colors">Sign in</a>
+          to rate this skill.
+        </p>
+        {% endif %}
       </div>
 
       <!-- Category link -->
-      <a href="/skills?category={{ skill.category.slug }}" class="block bg-navy-800 border border-navy-600 hover:border-teal-500 rounded-xl p-4 transition-colors group">
+      <a href="/skills?category={{ skill.category.slug }}"
+         class="block bg-navy-800 border border-navy-600 hover:border-teal-500 rounded-xl p-4 transition-colors group">
         <p class="text-xs text-gray-500 mb-1">Category</p>
         <p class="text-white font-medium group-hover:text-teal-400 transition-colors">
           {{ skill.category.icon }} {{ skill.category.name }}
         </p>
-        <p class="text-xs text-gray-500 mt-1">Browse more in this category →</p>
+        <p class="text-xs text-gray-500 mt-1">Browse more →</p>
       </a>
     </div>
   </div>
@@ -115,17 +139,47 @@
 {% block scripts %}
 <script>
 (function () {
+  // ── Download ──────────────────────────────────────────────────────────────
+  const dlBtn = document.getElementById('download-btn');
+  if (dlBtn) {
+    dlBtn.addEventListener('click', async () => {
+      const skillId = dlBtn.dataset.skillId;
+      const skillTitle = dlBtn.dataset.skillTitle;
+      dlBtn.disabled = true;
+      dlBtn.textContent = 'Downloading…';
+      try {
+        const res = await fetch(`/api/v1/skills/${skillId}/download`);
+        if (!res.ok) throw new Error('Download failed');
+        const data = await res.json();
+        // Update install count in stats
+        const countEl = document.getElementById('install-count');
+        if (countEl) countEl.textContent = data.install_count;
+        dlBtn.textContent = '✓ Downloaded';
+        dlBtn.classList.replace('bg-teal-500', 'bg-green-600');
+        dlBtn.classList.replace('hover:bg-teal-400', 'hover:bg-green-500');
+        // If source_file is a URL, trigger navigation; otherwise just confirm
+        if (data.source_file && data.source_file.startsWith('http')) {
+          window.open(data.source_file, '_blank');
+        }
+      } catch (e) {
+        dlBtn.textContent = '↓ Download';
+        dlBtn.disabled = false;
+      }
+    });
+  }
+
+  // ── Star rating ───────────────────────────────────────────────────────────
   const container = document.getElementById('star-rating');
+  if (!container) return;
+
   const stars = container.querySelectorAll('.star');
   const feedback = document.getElementById('rating-feedback');
   const result = document.getElementById('rating-result');
   const skillId = container.dataset.skillId;
   let userRating = parseInt(container.dataset.userRating) || 0;
 
-  function paint(hovered) {
-    stars.forEach((s, i) => {
-      s.style.color = i < hovered ? '#facc15' : '#4b5563';
-    });
+  function paint(n) {
+    stars.forEach((s, i) => { s.style.color = i < n ? '#facc15' : '#4b5563'; });
   }
 
   stars.forEach((star, idx) => {
@@ -143,9 +197,9 @@
         userRating = score;
         paint(userRating);
         feedback.textContent = `Rated ${score} stars`;
-        result.textContent = `Average rating: ★ ${data.avg_rating} / 5 (${data.rating_count} votes)`;
+        result.textContent = `Average: ★ ${data.avg_rating} / 5 (${data.rating_count} votes)`;
         result.classList.remove('hidden');
-      } catch (e) {
+      } catch {
         feedback.textContent = 'Rating failed, please try again';
       }
     });

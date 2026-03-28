@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}My Account — Hushclaw{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Header -->
+  <div class="mb-10">
+    <h1 class="text-3xl font-bold text-white">My Account</h1>
+    <p class="mt-1 text-gray-400 text-sm">{{ user.email }}</p>
+  </div>
+
+  <!-- Profile card -->
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-200 mb-4">Profile</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div>
+        <dt class="text-gray-500 mb-0.5">Email</dt>
+        <dd class="text-white font-medium">{{ user.email }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 mb-0.5">Display name</dt>
+        <dd class="text-white font-medium">{{ user.display_name or '—' }}</dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 mb-0.5">Member since</dt>
+        <dd class="text-white font-medium">
+          {% if user.created_at %}{{ user.created_at.strftime('%b %d, %Y') }}{% else %}—{% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-gray-500 mb-0.5">Last login</dt>
+        <dd class="text-white font-medium">
+          {% if user.last_login_at %}{{ user.last_login_at.strftime('%b %d, %Y %H:%M') }} UTC{% else %}—{% endif %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Active sessions -->
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-200 mb-1">Active Sessions</h2>
+    <p class="text-xs text-gray-500 mb-5">These are the devices / clients currently signed in to your account. Revoke any you don't recognise.</p>
+
+    {% if tokens %}
+    <ul class="space-y-3">
+      {% for token in tokens %}
+      <li class="flex items-center justify-between gap-4 bg-navy-700 rounded-xl px-4 py-3">
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-white truncate">{{ token.name or 'Session' }}</p>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Prefix: <span class="font-mono text-gray-400">{{ token.token_prefix }}…</span>
+            &nbsp;·&nbsp;
+            Expires: {{ token.expires_at.strftime('%b %d, %Y') }}
+            {% if token.last_used_at %}
+            &nbsp;·&nbsp; Last used: {{ token.last_used_at.strftime('%b %d, %Y %H:%M') }} UTC
+            {% endif %}
+          </p>
+        </div>
+        <form method="post" action="/account/tokens/{{ token.id }}/revoke"
+              onsubmit="return confirm('Revoke this session?')">
+          <button
+            type="submit"
+            class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-900/50 hover:bg-red-800/70 border border-red-800
+                   text-red-300 hover:text-red-200 text-xs font-medium transition-colors"
+          >
+            Revoke
+          </button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-gray-500 text-sm">No active sessions found.</p>
+    {% endif %}
+  </div>
+
+  <!-- API usage hint -->
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-200 mb-3">API Access</h2>
+    <p class="text-sm text-gray-400 mb-4">
+      Use the API endpoints below to obtain a token programmatically, then pass it as a
+      <span class="font-mono text-teal-400">Bearer</span> token in every request.
+    </p>
+    <div class="space-y-2 text-xs font-mono bg-navy-900 rounded-lg p-4 text-gray-300 leading-relaxed overflow-x-auto">
+      <p><span class="text-gray-500"># Step 1 — request a code</span></p>
+      <p>curl -X POST {{ request.base_url }}api/v1/auth/send-code \</p>
+      <p class="pl-4">-H 'Content-Type: application/json' \</p>
+      <p class="pl-4">-d '{"email": "you@example.com"}'</p>
+      <p class="mt-3"><span class="text-gray-500"># Step 2 — exchange code for token</span></p>
+      <p>curl -X POST {{ request.base_url }}api/v1/auth/verify-code \</p>
+      <p class="pl-4">-H 'Content-Type: application/json' \</p>
+      <p class="pl-4">-d '{"email": "you@example.com", "code": "123456", "client_name": "My Script"}'</p>
+      <p class="mt-3"><span class="text-gray-500"># Step 3 — use the token</span></p>
+      <p>curl {{ request.base_url }}api/v1/account/me \</p>
+      <p class="pl-4">-H 'Authorization: Bearer hc_...'</p>
+    </div>
+  </div>
+
+  <!-- Sign out -->
+  <div class="text-right">
+    <form method="post" action="/auth/logout">
+      <button
+        type="submit"
+        class="px-5 py-2.5 rounded-lg border border-navy-600 text-gray-400 hover:text-white hover:border-gray-500
+               text-sm transition-colors"
+      >
+        Sign out
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

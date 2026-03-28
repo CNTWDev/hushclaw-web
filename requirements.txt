@@ -6,3 +6,4 @@ python-multipart
 itsdangerous
 python-dotenv
 aiofiles
+email-validator

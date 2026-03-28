@@ -32,6 +32,11 @@
         <div class="flex items-center gap-6 text-sm font-medium">
           <a href="/" class="text-gray-300 hover:text-white transition-colors">Home</a>
           <a href="/skills" class="text-gray-300 hover:text-white transition-colors">Skills</a>
+          {% if request.state.current_user %}
+          <a href="/account" class="text-teal-400 hover:text-teal-300 transition-colors">{{ request.state.current_user.display_name or request.state.current_user.email }}</a>
+          {% else %}
+          <a href="/auth/login" class="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-white font-semibold text-xs transition-colors">Sign in</a>
+          {% endif %}
           <a href="/admin" class="text-gray-400 hover:text-gray-200 transition-colors text-xs">Admin</a>
         </div>
       </div>
