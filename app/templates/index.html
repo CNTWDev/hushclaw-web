@@ -56,27 +56,109 @@
     </div>
 
     <!-- Mac / Linux -->
-    <div id="panel-mac" class="p-6">
-      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Run in Terminal</p>
-      <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-green-400 border border-navy-600">
-        <code id="cmd-mac">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
+    <div id="panel-mac" class="px-5 py-4">
+      <div class="relative flex items-center gap-3 bg-navy-900 rounded-lg px-4 py-2.5 border border-navy-600">
+        <code id="cmd-mac" class="flex-1 font-mono text-sm text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
         <button
           data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)"
-          class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
+          class="copy-btn shrink-0 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
         >Copy</button>
       </div>
     </div>
 
     <!-- Windows -->
-    <div id="panel-win" class="p-6 hidden">
-      <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Run in PowerShell</p>
-      <div class="relative bg-navy-900 rounded-lg p-4 font-mono text-sm text-blue-300 border border-navy-600">
-        <pre id="cmd-win" class="whitespace-pre-wrap">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    <div id="panel-win" class="px-5 py-4 hidden">
+      <div class="relative bg-navy-900 rounded-lg border border-navy-600">
+        <pre id="cmd-win" class="font-mono text-sm text-blue-300 px-4 py-3 whitespace-pre overflow-x-auto">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1
 .\install.ps1</pre>
         <button
           data-copy="Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass&#10;Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1&#10;.\install.ps1"
           class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
+        >Copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Uninstall Block -->
+<section id="uninstall" class="max-w-3xl mx-auto px-4 mt-6">
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden shadow-2xl">
+    <!-- Header -->
+    <div class="px-6 pt-5 pb-3 border-b border-navy-600 flex items-center gap-2">
+      <span class="text-red-400 text-lg">🗑️</span>
+      <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-widest">Uninstall</h3>
+    </div>
+    <!-- Tabs -->
+    <div class="flex border-b border-navy-600">
+      <button
+        id="utab-mac"
+        onclick="switchUninstallTab('mac')"
+        class="utab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700"
+      >
+        🍎 macOS / 🐧 Linux
+      </button>
+      <button
+        id="utab-win"
+        onclick="switchUninstallTab('win')"
+        class="utab-btn flex-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors"
+      >
+        🪟 Windows
+      </button>
+    </div>
+
+    <!-- Mac / Linux -->
+    <div id="upanel-mac" class="divide-y divide-navy-700">
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">一键卸载</span>
+        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
+        <button
+          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)"
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
+        >Copy</button>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">保留记忆/配置</span>
+        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
+        <button
+          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data"
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
+        >Copy</button>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">无确认 (CI)</span>
+        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
+        <button
+          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y"
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
+        >Copy</button>
+      </div>
+    </div>
+
+    <!-- Windows -->
+    <div id="upanel-win" class="divide-y divide-navy-700 hidden">
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">一键卸载</span>
+        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
+        <button
+          data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"'
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
+        >Copy</button>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">保留记忆/配置</span>
+        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">.\uninstall.ps1 -KeepData</code>
+        <button
+          data-copy=".\uninstall.ps1 -KeepData"
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
+        >Copy</button>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
+        <span class="shrink-0 text-xs text-gray-500 w-28">无确认 (CI)</span>
+        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">.\uninstall.ps1 -Yes</code>
+        <button
+          data-copy=".\uninstall.ps1 -Yes"
+          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
         >Copy</button>
       </div>
     </div>
@@ -166,6 +248,19 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master
 function switchTab(tab) {
   const panels = { mac: document.getElementById('panel-mac'), win: document.getElementById('panel-win') };
   const tabs = { mac: document.getElementById('tab-mac'), win: document.getElementById('tab-win') };
+  Object.keys(panels).forEach(k => {
+    panels[k].classList.toggle('hidden', k !== tab);
+    tabs[k].classList.toggle('text-teal-400', k === tab);
+    tabs[k].classList.toggle('border-teal-400', k === tab);
+    tabs[k].classList.toggle('bg-navy-700', k === tab);
+    tabs[k].classList.toggle('text-gray-400', k !== tab);
+    tabs[k].classList.toggle('border-transparent', k !== tab);
+  });
+}
+
+function switchUninstallTab(tab) {
+  const panels = { mac: document.getElementById('upanel-mac'), win: document.getElementById('upanel-win') };
+  const tabs = { mac: document.getElementById('utab-mac'), win: document.getElementById('utab-win') };
   Object.keys(panels).forEach(k => {
     panels[k].classList.toggle('hidden', k !== tab);
     tabs[k].classList.toggle('text-teal-400', k === tab);
