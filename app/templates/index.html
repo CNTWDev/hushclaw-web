@@ -68,13 +68,11 @@
 
     <!-- Windows -->
     <div id="panel-win" class="px-5 py-4 hidden">
-      <div class="relative bg-navy-900 rounded-lg border border-navy-600">
-        <pre id="cmd-win" class="font-mono text-sm text-blue-300 px-4 py-3 whitespace-pre overflow-x-auto">Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1
-.\install.ps1</pre>
+      <div class="relative flex items-center gap-3 bg-navy-900 rounded-lg px-4 py-2.5 border border-navy-600">
+        <code id="cmd-win" class="flex-1 font-mono text-sm text-blue-300 overflow-x-auto whitespace-nowrap">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"</code>
         <button
-          data-copy="Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass&#10;Invoke-WebRequest -Uri https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 -OutFile install.ps1&#10;.\install.ps1"
-          class="copy-btn absolute right-3 top-3 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
+          data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"'
+          class="copy-btn shrink-0 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
         >Copy</button>
       </div>
     </div>
