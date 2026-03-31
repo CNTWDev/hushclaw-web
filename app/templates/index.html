@@ -3,8 +3,30 @@
 
 {% block head %}
 <style>
+  /* ── Scrollbar hide ── */
   .cmd-scroll { overflow-x: auto; scrollbar-width: none; }
   .cmd-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Gradient command text (macOS) ── */
+  .cmd-mac-text {
+    background: linear-gradient(90deg, #2dd4bf 0%, #67e8f9 55%, #a5f3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  /* ── Gradient command text (Windows) ── */
+  .cmd-win-text {
+    background: linear-gradient(90deg, #38bdf8 0%, #818cf8 55%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  /* ── Muted secondary command text ── */
+  .cmd-muted { color: rgba(148,163,184,0.45); }
+
+  /* ── Install block ambient glow on hover ── */
+  .install-block-mac:hover  { box-shadow: 0 0 28px rgba(45,212,191,0.10), inset 0 0 0 1px rgba(45,212,191,0.25); border-color: rgba(45,212,191,0.25) !important; }
+  .install-block-win:hover  { box-shadow: 0 0 28px rgba(56,189,248,0.10), inset 0 0 0 1px rgba(129,140,248,0.25); border-color: rgba(56,189,248,0.25) !important; }
 </style>
 {% endblock %}
 
@@ -83,36 +105,37 @@
           <div id="panel-mac">
             <div class="px-4 pt-3 pb-2">
               <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-2.5">Install</p>
-              <div class="flex items-center gap-3 bg-navy-900 rounded-xl px-4 py-3 border border-navy-700 hover:border-teal-500/50 transition-colors group">
-                <code class="cmd-scroll flex-1 font-mono text-sm text-green-400 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
+              <div class="install-block-mac flex items-center gap-3 bg-[#060c14] rounded-xl px-4 py-3.5 border border-navy-700/80 transition-all duration-300 group">
+                <span class="shrink-0 font-mono text-sm text-teal-900 select-none">$</span>
+                <code class="cmd-mac-text cmd-scroll flex-1 font-mono text-sm min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)"
-                  class="copy-btn shrink-0 bg-navy-700 hover:bg-teal-600 text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-navy-500 hover:border-teal-500 transition-all font-medium">
+                  class="copy-btn shrink-0 bg-teal-500/10 hover:bg-teal-500/25 text-teal-400 hover:text-teal-300 text-xs px-3 py-1.5 rounded-lg border border-teal-500/20 hover:border-teal-400/40 transition-all font-medium tracking-wide">
                   Copy
                 </button>
               </div>
             </div>
-            <div class="mx-4 border-t border-navy-700/60 mt-1"></div>
+            <div class="mx-4 border-t border-navy-700/50 mt-1"></div>
             <div class="px-4 pt-3 pb-1">
               <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">Uninstall</p>
             </div>
-            <div class="divide-y divide-navy-700/40 pb-3">
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+            <div class="divide-y divide-navy-700/30 pb-3">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">一键卸载</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/60 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)"
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">保留记忆/配置</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/60 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data"
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">无确认 (CI)</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/60 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y"
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
             </div>
           </div>
@@ -121,36 +144,37 @@
           <div id="panel-win" class="hidden">
             <div class="px-4 pt-3 pb-2">
               <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-2.5">Install</p>
-              <div class="flex items-center gap-3 bg-navy-900 rounded-xl px-4 py-3 border border-navy-700 hover:border-blue-500/40 transition-colors group">
-                <code class="cmd-scroll flex-1 font-mono text-sm text-blue-300 min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"</code>
+              <div class="install-block-win flex items-center gap-3 bg-[#060c14] rounded-xl px-4 py-3.5 border border-navy-700/80 transition-all duration-300 group">
+                <span class="shrink-0 font-mono text-sm text-indigo-950 select-none">PS›</span>
+                <code class="cmd-win-text cmd-scroll flex-1 font-mono text-sm min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"</code>
                 <button data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"'
-                  class="copy-btn shrink-0 bg-navy-700 hover:bg-blue-600 text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-navy-500 hover:border-blue-500 transition-all font-medium">
+                  class="copy-btn shrink-0 bg-indigo-500/10 hover:bg-indigo-500/25 text-indigo-400 hover:text-indigo-300 text-xs px-3 py-1.5 rounded-lg border border-indigo-500/20 hover:border-indigo-400/40 transition-all font-medium tracking-wide">
                   Copy
                 </button>
               </div>
             </div>
-            <div class="mx-4 border-t border-navy-700/60 mt-1"></div>
+            <div class="mx-4 border-t border-navy-700/50 mt-1"></div>
             <div class="px-4 pt-3 pb-1">
               <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">Uninstall</p>
             </div>
-            <div class="divide-y divide-navy-700/40 pb-3">
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+            <div class="divide-y divide-navy-700/30 pb-3">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">一键卸载</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/60 min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
                 <button data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"'
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">保留记忆/配置</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/60 min-w-0">.\uninstall.ps1 -KeepData</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">.\uninstall.ps1 -KeepData</code>
                 <button data-copy=".\uninstall.ps1 -KeepData"
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
-              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-navy-900/40 transition-colors group">
+              <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
                 <span class="shrink-0 text-xs text-gray-600 w-24">无确认 (CI)</span>
-                <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/60 min-w-0">.\uninstall.ps1 -Yes</code>
+                <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">.\uninstall.ps1 -Yes</code>
                 <button data-copy=".\uninstall.ps1 -Yes"
-                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+                  class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
             </div>
           </div>
