@@ -7,7 +7,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from app.database import get_db
-from app.models import Category, Skill, User
+from app.models import AppVersion, Category, Skill, User
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -80,6 +80,7 @@ async def dashboard(
     categories = db.query(Category).all()
     pending_count = db.query(Skill).filter(Skill.status == "pending").count()
     user_count = db.query(User).count()
+    latest_version = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
     return templates.TemplateResponse(
         "admin/dashboard.html",
         {
@@ -89,6 +90,7 @@ async def dashboard(
             "pending_count": pending_count,
             "user_count": user_count,
             "status_filter": status or "",
+            "latest_version": latest_version,
         },
     )
 
@@ -248,6 +250,82 @@ async def approve_skill(skill_id: int, request: Request, db: Session = Depends(g
 
     db.commit()
     return RedirectResponse(url="/admin", status_code=302)
+
+
+# ── Version management ────────────────────────────────────────────────────────
+
+
+@router.get("/versions")
+async def list_versions(request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
+    latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
+    return templates.TemplateResponse(
+        "admin/versions.html",
+        {"request": request, "versions": versions, "latest": latest, "error": None},
+    )
+
+
+@router.post("/versions/new")
+async def create_version(
+    request: Request,
+    db: Session = Depends(get_db),
+    version: str = Form(...),
+    channel: str = Form("stable"),
+    release_notes: str = Form(""),
+    download_url: str = Form(""),
+    set_latest: str = Form("off"),
+):
+    require_admin(request)
+    version = version.strip().lstrip("v")
+    if not version:
+        versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
+        latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
+        return templates.TemplateResponse(
+            "admin/versions.html",
+            {"request": request, "versions": versions, "latest": latest, "error": "版本号不能为空"},
+        )
+    if db.query(AppVersion).filter(AppVersion.version == version).first():
+        versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
+        latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
+        return templates.TemplateResponse(
+            "admin/versions.html",
+            {"request": request, "versions": versions, "latest": latest, "error": f"版本 {version} 已存在"},
+        )
+    if set_latest == "on":
+        db.query(AppVersion).update({AppVersion.is_latest: False})
+    v = AppVersion(
+        version=version,
+        channel=channel,
+        release_notes=release_notes.strip() or None,
+        download_url=download_url.strip() or None,
+        is_latest=(set_latest == "on"),
+    )
+    db.add(v)
+    db.commit()
+    return RedirectResponse(url="/admin/versions", status_code=302)
+
+
+@router.post("/versions/{version_id}/set-latest")
+async def set_latest_version(version_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    v = db.query(AppVersion).filter(AppVersion.id == version_id).first()
+    if not v:
+        raise HTTPException(status_code=404, detail="Version not found")
+    db.query(AppVersion).update({AppVersion.is_latest: False})
+    v.is_latest = True
+    db.commit()
+    return RedirectResponse(url="/admin/versions", status_code=302)
+
+
+@router.post("/versions/{version_id}/delete")
+async def delete_version(version_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    v = db.query(AppVersion).filter(AppVersion.id == version_id).first()
+    if v:
+        db.delete(v)
+        db.commit()
+    return RedirectResponse(url="/admin/versions", status_code=302)
 
 
 @router.post("/skills/{skill_id}/reject")

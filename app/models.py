@@ -101,6 +101,19 @@ class Skill(Base):
         return [t.strip() for t in self.tags.split(",") if t.strip()]
 
 
+class AppVersion(Base):
+    __tablename__ = "app_versions"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    version       = Column(String(30), nullable=False, unique=True)   # e.g. "1.2.0"
+    channel       = Column(String(20), default="stable")              # stable / beta
+    release_notes = Column(Text, nullable=True)
+    download_url  = Column(String(500), nullable=True)
+    is_latest     = Column(Boolean, default=False)
+    published_at  = Column(DateTime, default=datetime.utcnow)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+
 class Rating(Base):
     __tablename__ = "ratings"
 

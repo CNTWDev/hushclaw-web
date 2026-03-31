@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.auth_utils import require_user
 from app.database import get_db
-from app.models import Category, Rating, Skill, User
+from app.models import AppVersion, Category, Rating, Skill, User
 
 _UPLOAD_DIR = Path(__file__).parent.parent.parent / "static" / "uploads"
 _UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -65,6 +65,57 @@ def _skill_detail(s: Skill) -> dict:
     return {
         **_skill_summary(s),
         "description": s.description,
+    }
+
+
+# ── 0. Version check (public, no auth) ───────────────────────────────────────
+
+
+def _parse_ver(v: str):
+    """Convert "1.2.3" → (1, 2, 3) for comparison. Non-numeric parts become 0."""
+    try:
+        return tuple(int(x) for x in v.strip().lstrip("v").split(".")[:3])
+    except (ValueError, AttributeError):
+        return (0, 0, 0)
+
+
+def _ver_dict(v: AppVersion) -> dict:
+    return {
+        "version": v.version,
+        "channel": v.channel,
+        "release_notes": v.release_notes,
+        "download_url": v.download_url,
+        "published_at": v.published_at.isoformat() if v.published_at else None,
+    }
+
+
+@router.get("/version/latest")
+async def get_latest_version(db: Session = Depends(get_db)):
+    """Return the current latest release. Public, no authentication required."""
+    v = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
+    if not v:
+        raise HTTPException(404, "No version published yet")
+    return _ver_dict(v)
+
+
+@router.get("/version/check")
+async def check_version(
+    current: str = Query(..., description="Client's current version, e.g. 1.0.0"),
+    db: Session = Depends(get_db),
+):
+    """
+    Compare the client's current version against the latest release.
+    Public, no authentication required.
+    """
+    v = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
+    if not v:
+        raise HTTPException(404, "No version published yet")
+    update_available = _parse_ver(v.version) > _parse_ver(current)
+    return {
+        "current": current,
+        "latest": v.version,
+        "update_available": update_available,
+        "latest_info": _ver_dict(v),
     }
 
 
