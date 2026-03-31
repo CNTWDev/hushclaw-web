@@ -1,214 +1,205 @@
 {% extends "base.html" %}
 {% block title %}HushClaw — Lightweight Token-first AI Agent Framework{% endblock %}
 
+{% block head %}
+<style>
+  .cmd-scroll { overflow-x: auto; scrollbar-width: none; }
+  .cmd-scroll::-webkit-scrollbar { display: none; }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero -->
-<section class="relative overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 pt-24 pb-32">
-  <div class="absolute inset-0 opacity-10 pointer-events-none select-none">
-    <div class="absolute top-16 left-1/4 w-96 h-96 rounded-full bg-teal-500 blur-3xl"></div>
-    <div class="absolute bottom-8 right-1/4 w-72 h-72 rounded-full bg-orange-400 blur-3xl"></div>
+<section class="relative overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 pt-28 pb-36">
+  <div class="absolute inset-0 pointer-events-none select-none">
+    <div class="absolute -top-24 left-1/3 w-[700px] h-[700px] rounded-full bg-teal-500/[0.06] blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-orange-400/[0.05] blur-3xl"></div>
+    <div class="absolute top-1/2 -left-24 w-[350px] h-[350px] rounded-full bg-teal-600/[0.04] blur-3xl"></div>
   </div>
   <div class="relative max-w-4xl mx-auto px-4 text-center">
-    <div class="inline-flex items-center gap-2 bg-navy-700 border border-navy-600 text-teal-400 text-xs font-medium px-3 py-1 rounded-full mb-6">
-      🦀 Zero Dependencies · Persistent Memory · Built-in Browser UI
-    </div>
-    <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">
-      Lightweight
-      <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-600">
-        AI Agent
+    <!-- Badges -->
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+      <span class="inline-flex items-center gap-1.5 bg-navy-700/80 border border-navy-600 text-teal-400 text-xs font-medium px-3 py-1 rounded-full">
+        <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+        Python 3.11+ · Zero Dependencies
       </span>
-      Framework
+      <span class="inline-flex items-center gap-1.5 bg-navy-700/80 border border-navy-600 text-gray-400 text-xs px-3 py-1 rounded-full">
+        🔒 Local-first · No cloud required
+      </span>
+    </div>
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.05]">
+      <span class="text-white">Build AI Agents</span><br>
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400">
+        Token&#8209;First
+      </span>
     </h1>
-    <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-      Token-first design with persistent memory and a built-in browser UI.
-      Zero mandatory dependencies — pure Python stdlib.
+    <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+      Persistent memory · Built-in browser UI · Pure Python stdlib.<br class="hidden sm:block">
+      No pip required. Works offline. Ships in minutes.
     </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="#install" class="bg-teal-500 hover:bg-teal-400 text-white font-semibold px-8 py-3 rounded-lg transition-colors">
-        Install Now
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="#quickstart" class="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20 hover:shadow-teal-400/30 hover:-translate-y-0.5">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Quick Start
       </a>
-      <a href="/skills" class="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-200 font-semibold px-8 py-3 rounded-lg transition-colors">
+      <a href="/skills" class="inline-flex items-center justify-center gap-2 bg-navy-700/80 hover:bg-navy-600 border border-navy-600 hover:border-navy-500 text-gray-200 font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
         Browse Skills
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
     </div>
   </div>
 </section>
 
-<!-- Install Block -->
-<section id="install" class="max-w-3xl mx-auto px-4 -mt-12">
-  <div class="bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden shadow-2xl">
-    <!-- Tabs -->
-    <div class="flex border-b border-navy-600">
-      <button
-        id="tab-mac"
-        onclick="switchTab('mac')"
-        class="tab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700"
-      >
+<!-- Quick Start — unified install + uninstall -->
+<section id="quickstart" class="max-w-3xl mx-auto px-4 -mt-14">
+  <div class="bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+
+    <!-- Top bar: label + platform tabs -->
+    <div class="flex items-stretch border-b border-navy-600">
+      <div class="flex items-center px-5 gap-2 text-xs font-semibold text-gray-500 uppercase tracking-widest shrink-0 border-r border-navy-600">
+        <svg class="w-3.5 h-3.5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Quick Start
+      </div>
+      <button id="tab-mac" onclick="switchTab('mac')"
+        class="tab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700/60 transition-colors">
         🍎 macOS / 🐧 Linux
       </button>
-      <button
-        id="tab-win"
-        onclick="switchTab('win')"
-        class="tab-btn flex-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors"
-      >
+      <button id="tab-win" onclick="switchTab('win')"
+        class="tab-btn flex-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors">
         🪟 Windows
       </button>
     </div>
 
-    <!-- Mac / Linux -->
-    <div id="panel-mac" class="px-5 py-4">
-      <div class="relative flex items-center gap-3 bg-navy-900 rounded-lg px-4 py-2.5 border border-navy-600">
-        <code id="cmd-mac" class="flex-1 font-mono text-sm text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
-        <button
-          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)"
-          class="copy-btn shrink-0 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
-        >Copy</button>
+    <!-- macOS / Linux panel -->
+    <div id="panel-mac">
+      <div class="px-5 pt-4 pb-2">
+        <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Install</p>
+        <div class="flex items-center gap-3 bg-navy-900 rounded-xl px-4 py-3 border border-navy-600 hover:border-teal-500/60 transition-colors group">
+          <code class="cmd-scroll flex-1 font-mono text-sm text-green-400 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)</code>
+          <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.sh)"
+            class="copy-btn shrink-0 bg-navy-700 hover:bg-teal-600 text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-navy-500 hover:border-teal-500 transition-all font-medium">
+            Copy
+          </button>
+        </div>
+      </div>
+      <div class="mx-5 mt-3 border-t border-navy-700/70"></div>
+      <div class="px-5 pt-3 pb-1">
+        <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">Uninstall</p>
+      </div>
+      <div class="divide-y divide-navy-700/50 pb-3">
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">一键卸载</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/70 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
+          <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)"
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">保留记忆/配置</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/70 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
+          <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data"
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">无确认 (CI)</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-green-400/70 min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
+          <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y"
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
       </div>
     </div>
 
-    <!-- Windows -->
-    <div id="panel-win" class="px-5 py-4 hidden">
-      <div class="relative flex items-center gap-3 bg-navy-900 rounded-lg px-4 py-2.5 border border-navy-600">
-        <code id="cmd-win" class="flex-1 font-mono text-sm text-blue-300 overflow-x-auto whitespace-nowrap">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"</code>
-        <button
-          data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"'
-          class="copy-btn shrink-0 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-3 py-1 rounded border border-navy-500 transition-colors"
-        >Copy</button>
+    <!-- Windows panel -->
+    <div id="panel-win" class="hidden">
+      <div class="px-5 pt-4 pb-2">
+        <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Install</p>
+        <div class="flex items-center gap-3 bg-navy-900 rounded-xl px-4 py-3 border border-navy-600 hover:border-teal-500/60 transition-colors group">
+          <code class="cmd-scroll flex-1 font-mono text-sm text-blue-300 min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"</code>
+          <button data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/install.ps1 | iex"'
+            class="copy-btn shrink-0 bg-navy-700 hover:bg-teal-600 text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-navy-500 hover:border-teal-500 transition-all font-medium">
+            Copy
+          </button>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- Uninstall Block -->
-<section id="uninstall" class="max-w-3xl mx-auto px-4 mt-6">
-  <div class="bg-navy-800 border border-navy-600 rounded-2xl overflow-hidden shadow-2xl">
-    <!-- Header -->
-    <div class="px-6 pt-5 pb-3 border-b border-navy-600 flex items-center gap-2">
-      <span class="text-red-400 text-lg">🗑️</span>
-      <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-widest">Uninstall</h3>
-    </div>
-    <!-- Tabs -->
-    <div class="flex border-b border-navy-600">
-      <button
-        id="utab-mac"
-        onclick="switchUninstallTab('mac')"
-        class="utab-btn flex-1 py-3 text-sm font-medium text-teal-400 border-b-2 border-teal-400 bg-navy-700"
-      >
-        🍎 macOS / 🐧 Linux
-      </button>
-      <button
-        id="utab-win"
-        onclick="switchUninstallTab('win')"
-        class="utab-btn flex-1 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent transition-colors"
-      >
-        🪟 Windows
-      </button>
-    </div>
-
-    <!-- Mac / Linux -->
-    <div id="upanel-mac" class="divide-y divide-navy-700">
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">一键卸载</span>
-        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
-        <button
-          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)"
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
+      <div class="mx-5 mt-3 border-t border-navy-700/70"></div>
+      <div class="px-5 pt-3 pb-1">
+        <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1">Uninstall</p>
       </div>
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">保留记忆/配置</span>
-        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
-        <button
-          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data"
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
-      </div>
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">无确认 (CI)</span>
-        <code class="flex-1 font-mono text-xs text-green-400 overflow-x-auto whitespace-nowrap">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
-        <button
-          data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y"
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
+      <div class="divide-y divide-navy-700/50 pb-3">
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">一键卸载</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/70 min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
+          <button data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"'
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">保留记忆/配置</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/70 min-w-0">.\uninstall.ps1 -KeepData</code>
+          <button data-copy=".\uninstall.ps1 -KeepData"
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
+        <div class="flex items-center gap-3 px-5 py-2.5 hover:bg-navy-900/40 transition-colors group">
+          <span class="shrink-0 text-xs text-gray-600 w-28">无确认 (CI)</span>
+          <code class="cmd-scroll flex-1 font-mono text-xs text-blue-300/70 min-w-0">.\uninstall.ps1 -Yes</code>
+          <button data-copy=".\uninstall.ps1 -Yes"
+            class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded-lg border border-navy-500 transition-all">Copy</button>
+        </div>
       </div>
     </div>
 
-    <!-- Windows -->
-    <div id="upanel-win" class="divide-y divide-navy-700 hidden">
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">一键卸载</span>
-        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
-        <button
-          data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"'
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
-      </div>
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">保留记忆/配置</span>
-        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">.\uninstall.ps1 -KeepData</code>
-        <button
-          data-copy=".\uninstall.ps1 -KeepData"
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
-      </div>
-      <div class="flex items-center gap-3 px-5 py-3 bg-navy-900/40 hover:bg-navy-900/70 transition-colors group">
-        <span class="shrink-0 text-xs text-gray-500 w-28">无确认 (CI)</span>
-        <code class="flex-1 font-mono text-xs text-blue-300 overflow-x-auto whitespace-nowrap">.\uninstall.ps1 -Yes</code>
-        <button
-          data-copy=".\uninstall.ps1 -Yes"
-          class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700 hover:bg-navy-600 text-gray-300 text-xs px-2.5 py-1 rounded border border-navy-500 transition-all"
-        >Copy</button>
-      </div>
-    </div>
   </div>
 </section>
 
 <!-- Features -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-  <h2 class="text-3xl font-bold text-center mb-4">Why HushClaw?</h2>
-  <p class="text-gray-400 text-center mb-14 max-w-xl mx-auto">Everything you need to build powerful AI agents — nothing you don't</p>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+  <div class="text-center mb-16">
+    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Why HushClaw?</h2>
+    <p class="text-gray-400 max-w-xl mx-auto">Everything you need to build powerful AI agents — nothing you don't</p>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
     {% set features = [
-      ("🖥️", "Browser UI", "Full chat interface at http://localhost:8765 — sessions, memories, and multi-agent panels. Setup wizard on first launch."),
-      ("🎯", "Token-first Design", "Explicit token budget per context section. Anthropic KV-cache support for the stable prefix."),
-      ("🧠", "Persistent Memory", "Notes survive across sessions via SQLite FTS5 + local vector search."),
-      ("📦", "Zero Dependencies", "Runs with Python 3.11+ stdlib only — sqlite3, tomllib, asyncio, urllib. No pip required."),
-      ("🔌", "Multiple Providers", "Anthropic (urllib or SDK), Ollama, and any OpenAI-compatible endpoint."),
-      ("🔄", "ReAct Loop", "Tool use with pluggable ContextEngine for lossless context compaction."),
-      ("🧩", "Plugin Tools", "Drop .py files into ~/.config/hushclaw/tools/ to extend with custom tools."),
-      ("🤝", "Multi-agent", "Sequential pipelines, session-affinity pools, and agent-to-agent delegation."),
-      ("💾", "Native Storage", "macOS ~/Library/Application Support/hushclaw/ · Linux ~/.local/share/hushclaw/"),
+      ("🖥️", "Browser UI", "Full chat interface at http://localhost:8765 — sessions, memories, and multi-agent panels. Setup wizard on first launch.", "#2dd4bf"),
+      ("🎯", "Token-first Design", "Explicit token budget per context section. Anthropic KV-cache support for the stable prefix.", "#60a5fa"),
+      ("🧠", "Persistent Memory", "Notes survive across sessions via SQLite FTS5 + local vector search.", "#a78bfa"),
+      ("📦", "Zero Dependencies", "Runs with Python 3.11+ stdlib only — sqlite3, tomllib, asyncio, urllib. No pip required.", "#4ade80"),
+      ("🔌", "Multiple Providers", "Anthropic (urllib or SDK), Ollama, and any OpenAI-compatible endpoint.", "#fb923c"),
+      ("🔄", "ReAct Loop", "Tool use with pluggable ContextEngine for lossless context compaction.", "#22d3ee"),
+      ("🧩", "Plugin Tools", "Drop .py files into ~/.config/hushclaw/tools/ to extend with custom tools.", "#2dd4bf"),
+      ("🤝", "Multi-agent", "Sequential pipelines, session-affinity pools, and agent-to-agent delegation.", "#f472b6"),
+      ("💾", "Native Storage", "macOS ~/Library/Application Support/hushclaw/ · Linux ~/.local/share/hushclaw/", "#facc15"),
     ] %}
-    {% for icon, name, desc in features %}
-    <div class="bg-navy-800 border border-navy-600 rounded-xl p-6 hover:border-teal-500 transition-colors group">
-      <div class="text-3xl mb-3">{{ icon }}</div>
-      <h3 class="font-semibold text-white mb-2 group-hover:text-teal-400 transition-colors">{{ name }}</h3>
-      <p class="text-gray-400 text-sm leading-relaxed">{{ desc }}</p>
+    {% for icon, name, desc, color in features %}
+    <div class="feature-card relative bg-navy-800/60 border border-navy-600/80 rounded-2xl p-6 hover:border-navy-500 hover:bg-navy-800 transition-all group cursor-default overflow-hidden">
+      <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+           style="background: radial-gradient(circle at 0% 0%, {{ color }}08 0%, transparent 60%)"></div>
+      <div class="relative">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4 transition-transform group-hover:scale-110"
+             style="background: {{ color }}15; border: 1px solid {{ color }}25;">{{ icon }}</div>
+        <h3 class="font-semibold text-white mb-2 transition-colors" style="--tw-text-color: {{ color }}">{{ name }}</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">{{ desc }}</p>
+      </div>
     </div>
     {% endfor %}
   </div>
 </section>
 
-<!-- Featured Skills CTA -->
+<!-- Featured Skills -->
 {% if featured_skills %}
-<section class="bg-navy-800 border-y border-navy-600 py-20">
+<section class="bg-navy-800/50 border-y border-navy-600/60 py-20">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between mb-10">
       <div>
         <h2 class="text-2xl font-bold">Featured Skills</h2>
         <p class="text-gray-400 text-sm mt-1">High-quality skills from the community</p>
       </div>
-      <a href="/skills" class="text-teal-400 hover:text-teal-300 text-sm font-medium transition-colors">
-        View all →
+      <a href="/skills" class="text-teal-400 hover:text-teal-300 text-sm font-medium transition-colors inline-flex items-center gap-1">
+        View all <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {% for skill in featured_skills %}
-      <a href="/skills/{{ skill.id }}" class="bg-navy-900 border border-navy-600 rounded-xl p-5 hover:border-teal-500 transition-colors group">
+      <a href="/skills/{{ skill.id }}" class="bg-navy-900/80 border border-navy-600 rounded-2xl p-5 hover:border-teal-500/50 hover:bg-navy-900 transition-all group">
         <div class="flex items-start justify-between mb-3">
-          <div>
-            <span class="text-xs bg-navy-700 text-gray-400 px-2 py-0.5 rounded-full">{{ skill.category.icon }} {{ skill.category.name }}</span>
-          </div>
+          <span class="text-xs bg-navy-700 text-gray-400 px-2 py-0.5 rounded-full">{{ skill.category.icon }} {{ skill.category.name }}</span>
           {% if skill.platform != 'all' %}
           <span class="text-xs text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
             {{ '🍎 Mac' if skill.platform == 'mac' else '🪟 Win' }}
@@ -232,12 +223,26 @@
 {% endif %}
 
 <!-- Bottom CTA -->
-<section class="max-w-2xl mx-auto text-center px-4 py-24">
-  <h2 class="text-3xl font-bold mb-4">Ready to get started?</h2>
-  <p class="text-gray-400 mb-8">Install HushClaw and explore hundreds of community skills</p>
-  <a href="#install" class="inline-block bg-teal-500 hover:bg-teal-400 text-white font-semibold px-10 py-3 rounded-lg transition-colors">
-    Install Now
-  </a>
+<section class="relative overflow-hidden py-28">
+  <div class="absolute inset-0 pointer-events-none select-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-teal-500/[0.04] blur-3xl"></div>
+  </div>
+  <div class="relative max-w-2xl mx-auto text-center px-4">
+    <div class="inline-flex items-center gap-1.5 bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium px-3 py-1 rounded-full mb-6">
+      🚀 Open Source · MIT License
+    </div>
+    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Ready to get started?</h2>
+    <p class="text-gray-400 mb-10">Install HushClaw in 30 seconds and explore hundreds of community skills</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="#quickstart" class="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-10 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20 hover:-translate-y-0.5">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Install Now
+      </a>
+      <a href="/skills" class="inline-flex items-center justify-center gap-2 bg-navy-800 hover:bg-navy-700 border border-navy-600 text-gray-300 font-semibold px-10 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+        Browse Skills →
+      </a>
+    </div>
+  </div>
 </section>
 {% endblock %}
 
@@ -245,26 +250,13 @@
 <script>
 function switchTab(tab) {
   const panels = { mac: document.getElementById('panel-mac'), win: document.getElementById('panel-win') };
-  const tabs = { mac: document.getElementById('tab-mac'), win: document.getElementById('tab-win') };
+  const tabs   = { mac: document.getElementById('tab-mac'),   win: document.getElementById('tab-win') };
   Object.keys(panels).forEach(k => {
     panels[k].classList.toggle('hidden', k !== tab);
-    tabs[k].classList.toggle('text-teal-400', k === tab);
-    tabs[k].classList.toggle('border-teal-400', k === tab);
-    tabs[k].classList.toggle('bg-navy-700', k === tab);
-    tabs[k].classList.toggle('text-gray-400', k !== tab);
-    tabs[k].classList.toggle('border-transparent', k !== tab);
-  });
-}
-
-function switchUninstallTab(tab) {
-  const panels = { mac: document.getElementById('upanel-mac'), win: document.getElementById('upanel-win') };
-  const tabs = { mac: document.getElementById('utab-mac'), win: document.getElementById('utab-win') };
-  Object.keys(panels).forEach(k => {
-    panels[k].classList.toggle('hidden', k !== tab);
-    tabs[k].classList.toggle('text-teal-400', k === tab);
-    tabs[k].classList.toggle('border-teal-400', k === tab);
-    tabs[k].classList.toggle('bg-navy-700', k === tab);
-    tabs[k].classList.toggle('text-gray-400', k !== tab);
+    tabs[k].classList.toggle('text-teal-400',      k === tab);
+    tabs[k].classList.toggle('border-teal-400',    k === tab);
+    tabs[k].classList.toggle('bg-navy-700/60',     k === tab);
+    tabs[k].classList.toggle('text-gray-400',      k !== tab);
     tabs[k].classList.toggle('border-transparent', k !== tab);
   });
 }
