@@ -1,27 +1,37 @@
-// Copy to clipboard
-document.querySelectorAll('[data-copy]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const text = btn.dataset.copy;
-    navigator.clipboard.writeText(text).then(() => {
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('text-teal-400');
-      setTimeout(() => {
-        btn.textContent = orig;
-        btn.classList.remove('text-teal-400');
-      }, 2000);
-    }).catch(() => {
-      // Fallback for browsers without clipboard API
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy', 2000);
-    });
-  });
+// Copy to clipboard — event delegation so hidden/dynamic panels work reliably
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-copy]');
+  if (!btn) return;
+
+  const text = btn.dataset.copy;
+  if (!text) return;
+
+  const orig = btn.innerHTML;
+  const succeed = () => {
+    btn.innerHTML = '✓ Copied';
+    btn.classList.add('text-teal-400', '!border-teal-500/40');
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.classList.remove('text-teal-400', '!border-teal-500/40');
+    }, 2000);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(succeed).catch(() => fallback(text, succeed));
+  } else {
+    fallback(text, succeed);
+  }
 });
+
+function fallback(text, succeed) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    succeed();
+  } catch (_) {}
+  document.body.removeChild(ta);
+}
