@@ -8,3 +8,4 @@ itsdangerous
 python-dotenv
 aiofiles
 email-validator
+mistune

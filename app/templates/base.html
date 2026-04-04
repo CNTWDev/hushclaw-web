@@ -35,6 +35,7 @@
         <div class="flex items-center gap-6 text-sm font-medium">
           <a href="/" class="text-gray-300 hover:text-white transition-colors">Home</a>
           <a href="/skills" class="text-gray-300 hover:text-white transition-colors">Skills</a>
+          <a href="/docs" class="text-gray-300 hover:text-white transition-colors">Docs</a>
           {% if request.state.current_user %}
           <a href="/account" class="text-teal-400 hover:text-teal-300 transition-colors">{{ request.state.current_user.display_name or request.state.current_user.email }}</a>
           {% endif %}
@@ -59,6 +60,7 @@
         <div class="flex gap-4 text-sm text-gray-400">
           <a href="/" class="hover:text-white transition-colors">Home</a>
           <a href="/skills" class="hover:text-white transition-colors">Skills</a>
+          <a href="/docs" class="hover:text-white transition-colors">Docs</a>
         </div>
       </div>
       <!-- hidden admin entry -->

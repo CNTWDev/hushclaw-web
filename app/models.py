@@ -101,6 +101,19 @@ class Skill(Base):
         return [t.strip() for t in self.tags.split(",") if t.strip()]
 
 
+class Doc(Base):
+    __tablename__ = "docs"
+
+    id           = Column(Integer, primary_key=True, index=True)
+    title        = Column(String(200), nullable=False)
+    slug         = Column(String(200), unique=True, nullable=False, index=True)
+    summary      = Column(String(500), nullable=True)
+    content      = Column(Text, nullable=False, default="")
+    is_published = Column(Boolean, default=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class AppVersion(Base):
     __tablename__ = "app_versions"
 

@@ -14,6 +14,7 @@ from app.database import engine, Base
 from app.routes import home, skills, admin
 from app.routes import api
 from app.routes import auth, account
+from app.routes import docs
 
 # Schema is managed by Alembic. Run `alembic upgrade head` before starting.
 Base.metadata.create_all(bind=engine)
@@ -30,6 +31,7 @@ app.include_router(admin.router)
 app.include_router(api.router)
 app.include_router(auth.router)
 app.include_router(account.router)
+app.include_router(docs.router)
 
 
 @app.middleware("http")

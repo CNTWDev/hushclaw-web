@@ -1,13 +1,18 @@
 import os
-from typing import Optional
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, Query
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
+import re
+import uuid
+from datetime import datetime
 from pathlib import Path
+from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from sqlalchemy.orm import Session
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+
 from app.database import get_db
-from app.models import AppVersion, Category, Skill, User
+from app.models import AppVersion, Category, Doc, Skill, User
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -326,6 +331,142 @@ async def delete_version(version_id: int, request: Request, db: Session = Depend
         db.delete(v)
         db.commit()
     return RedirectResponse(url="/admin/versions", status_code=302)
+
+
+# ── Docs management ───────────────────────────────────────────────────────────
+
+_UPLOAD_DIR = Path(__file__).parent.parent.parent / "static" / "uploads" / "docs"
+_ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
+
+def _slugify(text: str) -> str:
+    text = text.lower().strip()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"[\s_-]+", "-", text)
+    return text[:120]
+
+
+@router.get("/docs")
+async def list_docs(request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    docs = db.query(Doc).order_by(Doc.created_at.desc()).all()
+    return templates.TemplateResponse(
+        "admin/docs.html", {"request": request, "docs": docs}
+    )
+
+
+@router.get("/docs/new")
+async def new_doc_form(request: Request):
+    require_admin(request)
+    return templates.TemplateResponse(
+        "admin/doc_form.html", {"request": request, "doc": None, "error": None}
+    )
+
+
+@router.post("/docs/new")
+async def create_doc(
+    request: Request,
+    db: Session = Depends(get_db),
+    title: str = Form(...),
+    slug: str = Form(""),
+    summary: str = Form(""),
+    content: str = Form(""),
+    is_published: str = Form("off"),
+):
+    require_admin(request)
+    slug = slug.strip() or _slugify(title)
+    if db.query(Doc).filter(Doc.slug == slug).first():
+        return templates.TemplateResponse(
+            "admin/doc_form.html",
+            {"request": request, "doc": None, "error": f"Slug '{slug}' 已存在，请修改"},
+        )
+    doc = Doc(
+        title=title.strip(),
+        slug=slug,
+        summary=summary.strip() or None,
+        content=content,
+        is_published=(is_published == "on"),
+    )
+    db.add(doc)
+    db.commit()
+    return RedirectResponse(url="/admin/docs", status_code=302)
+
+
+@router.get("/docs/{doc_id}/edit")
+async def edit_doc_form(doc_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    doc = db.query(Doc).filter(Doc.id == doc_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doc not found")
+    return templates.TemplateResponse(
+        "admin/doc_form.html", {"request": request, "doc": doc, "error": None}
+    )
+
+
+@router.post("/docs/{doc_id}/edit")
+async def update_doc(
+    doc_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    title: str = Form(...),
+    slug: str = Form(""),
+    summary: str = Form(""),
+    content: str = Form(""),
+    is_published: str = Form("off"),
+):
+    require_admin(request)
+    doc = db.query(Doc).filter(Doc.id == doc_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doc not found")
+    slug = slug.strip() or _slugify(title)
+    conflict = db.query(Doc).filter(Doc.slug == slug, Doc.id != doc_id).first()
+    if conflict:
+        return templates.TemplateResponse(
+            "admin/doc_form.html",
+            {"request": request, "doc": doc, "error": f"Slug '{slug}' 已被其他文章占用"},
+        )
+    doc.title = title.strip()
+    doc.slug = slug
+    doc.summary = summary.strip() or None
+    doc.content = content
+    doc.is_published = is_published == "on"
+    doc.updated_at = datetime.utcnow()
+    db.commit()
+    return RedirectResponse(url="/admin/docs", status_code=302)
+
+
+@router.post("/docs/{doc_id}/toggle")
+async def toggle_doc(doc_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    doc = db.query(Doc).filter(Doc.id == doc_id).first()
+    if doc:
+        doc.is_published = not doc.is_published
+        db.commit()
+    return RedirectResponse(url="/admin/docs", status_code=302)
+
+
+@router.post("/docs/{doc_id}/delete")
+async def delete_doc(doc_id: int, request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    doc = db.query(Doc).filter(Doc.id == doc_id).first()
+    if doc:
+        db.delete(doc)
+        db.commit()
+    return RedirectResponse(url="/admin/docs", status_code=302)
+
+
+@router.post("/docs/upload-image")
+async def upload_image(request: Request, file: UploadFile = File(...)):
+    require_admin(request)
+    ext = Path(file.filename or "").suffix.lower()
+    if ext not in _ALLOWED_EXTS:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+    _UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}{ext}"
+    dest = _UPLOAD_DIR / filename
+    content = await file.read()
+    dest.write_bytes(content)
+    return JSONResponse({"url": f"/static/uploads/docs/{filename}"})
 
 
 @router.post("/skills/{skill_id}/reject")

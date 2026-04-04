@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}{% if doc %}编辑文档{% else %}新建文档{% endif %} — Hushclaw Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="flex items-center gap-3 mb-8">
+    <a href="/admin/docs" class="text-gray-400 hover:text-white transition-colors text-sm">← Docs 管理</a>
+    <span class="text-gray-600">/</span>
+    <h1 class="text-xl font-bold">{% if doc %}编辑文档{% else %}新建文档{% endif %}</h1>
+  </div>
+
+  {% if error %}
+  <div class="bg-red-900/30 border border-red-700 text-red-400 text-sm px-4 py-3 rounded-lg mb-6">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="post"
+        action="{% if doc %}/admin/docs/{{ doc.id }}/edit{% else %}/admin/docs/new{% endif %}"
+        class="space-y-6">
+
+    <!-- Title -->
+    <div>
+      <label class="block text-sm text-gray-400 mb-1">标题 *</label>
+      <input type="text" name="title" id="title" required
+             value="{{ doc.title if doc else '' }}"
+             class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-teal-500 transition-colors"
+             placeholder="文章标题" />
+    </div>
+
+    <!-- Slug -->
+    <div>
+      <label class="block text-sm text-gray-400 mb-1">
+        Slug
+        <span class="text-gray-600 font-normal ml-1">（URL 路径，留空则自动生成）</span>
+      </label>
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500 text-sm">/docs/</span>
+        <input type="text" name="slug" id="slug"
+               value="{{ doc.slug if doc else '' }}"
+               class="flex-1 bg-navy-900 border border-navy-600 rounded-lg px-4 py-2.5 text-teal-400 font-mono text-sm focus:outline-none focus:border-teal-500 transition-colors"
+               placeholder="auto-generated-from-title" />
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div>
+      <label class="block text-sm text-gray-400 mb-1">摘要</label>
+      <textarea name="summary" rows="2"
+                class="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-teal-500 transition-colors resize-none"
+                placeholder="一两句话描述文章内容（可选）">{{ doc.summary if doc and doc.summary else '' }}</textarea>
+    </div>
+
+    <!-- Content (Markdown editor) -->
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-sm text-gray-400">内容（Markdown）</label>
+        <span id="paste-hint" class="text-xs text-gray-600">粘贴图片自动上传</span>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="flex items-center gap-1 bg-navy-900 border border-navy-600 border-b-0 rounded-t-lg px-3 py-2">
+        <button type="button" data-md="**" data-md-wrap="1" title="Bold"
+          class="toolbar-btn px-2 py-1 text-xs font-bold text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">B</button>
+        <button type="button" data-md="_" data-md-wrap="1" title="Italic"
+          class="toolbar-btn px-2 py-1 text-xs italic text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">I</button>
+        <button type="button" data-md="~~" data-md-wrap="1" title="Strikethrough"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors line-through">S</button>
+        <span class="w-px h-4 bg-navy-600 mx-1"></span>
+        <button type="button" data-md-line="## " title="Heading"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">H2</button>
+        <button type="button" data-md-line="### " title="Heading 3"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">H3</button>
+        <span class="w-px h-4 bg-navy-600 mx-1"></span>
+        <button type="button" data-md-line="- " title="List"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">• List</button>
+        <button type="button" data-md-line="1. " title="Ordered list"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">1. List</button>
+        <button type="button" data-md-line="> " title="Blockquote"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">"</button>
+        <span class="w-px h-4 bg-navy-600 mx-1"></span>
+        <button type="button" data-md="`" data-md-wrap="1" title="Inline code"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded font-mono transition-colors">`</button>
+        <button type="button" id="btn-code-block" title="Code block"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded font-mono transition-colors">```</button>
+        <span class="w-px h-4 bg-navy-600 mx-1"></span>
+        <button type="button" id="btn-hr" title="Horizontal rule"
+          class="toolbar-btn px-2 py-1 text-xs text-gray-400 hover:text-white hover:bg-navy-700 rounded transition-colors">—</button>
+      </div>
+
+      <textarea name="content" id="content" rows="22"
+                class="w-full bg-navy-900 border border-navy-600 border-t-0 rounded-b-lg px-4 py-3 text-gray-200 font-mono text-sm focus:outline-none focus:border-teal-500 transition-colors resize-y leading-relaxed"
+                placeholder="用 Markdown 编写文章内容...&#10;&#10;可直接粘贴截图，图片会自动上传。">{{ doc.content if doc and doc.content else '' }}</textarea>
+
+      <p class="mt-1.5 text-xs text-gray-600">
+        支持 Markdown · 表格 · ~~删除线~~ · - [ ] 任务列表 · 粘贴图片自动上传
+      </p>
+    </div>
+
+    <!-- Publish -->
+    <div class="flex items-center gap-3">
+      <input type="checkbox" name="is_published" id="is_published" value="on"
+             {% if doc and doc.is_published %}checked{% endif %}
+             class="w-4 h-4 accent-teal-500 rounded" />
+      <label for="is_published" class="text-sm text-gray-300">立即发布（公开可见）</label>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 pt-2">
+      <button type="submit"
+        class="flex-1 bg-teal-500 hover:bg-teal-400 text-white font-semibold py-2.5 rounded-lg transition-colors">
+        {% if doc %}保存修改{% else %}创建文档{% endif %}
+      </button>
+      <a href="/admin/docs"
+         class="flex-1 text-center bg-navy-700 hover:bg-navy-600 border border-navy-600 text-gray-300 font-medium py-2.5 rounded-lg transition-colors">
+        取消
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const textarea = document.getElementById('content');
+  const titleInput = document.getElementById('title');
+  const slugInput  = document.getElementById('slug');
+  const pasteHint  = document.getElementById('paste-hint');
+
+  // ── Auto-generate slug from title ──────────────────────────────────────────
+  if (titleInput && slugInput && !slugInput.value) {
+    titleInput.addEventListener('input', function () {
+      slugInput.value = titleInput.value
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_]+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 120);
+    });
+  }
+
+  // ── Toolbar helpers ────────────────────────────────────────────────────────
+  function insertAround(before, after) {
+    const start = textarea.selectionStart;
+    const end   = textarea.selectionEnd;
+    const sel   = textarea.value.substring(start, end);
+    const replacement = before + (sel || 'text') + after;
+    textarea.setRangeText(replacement, start, end, 'select');
+    textarea.focus();
+  }
+
+  function insertLinePrefix(prefix) {
+    const start = textarea.selectionStart;
+    const lineStart = textarea.value.lastIndexOf('\n', start - 1) + 1;
+    textarea.setRangeText(prefix, lineStart, lineStart, 'end');
+    textarea.focus();
+  }
+
+  document.querySelectorAll('.toolbar-btn[data-md-wrap]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const token = btn.dataset.md;
+      insertAround(token, token);
+    });
+  });
+
+  document.querySelectorAll('.toolbar-btn[data-md-line]').forEach(btn => {
+    btn.addEventListener('click', () => insertLinePrefix(btn.dataset['md-line'] || btn.dataset.mdLine));
+  });
+
+  document.getElementById('btn-code-block')?.addEventListener('click', () => {
+    insertAround('```\n', '\n```');
+  });
+
+  document.getElementById('btn-hr')?.addEventListener('click', () => {
+    const pos = textarea.selectionStart;
+    textarea.setRangeText('\n---\n', pos, pos, 'end');
+    textarea.focus();
+  });
+
+  // ── Image paste → auto upload ──────────────────────────────────────────────
+  async function uploadImageFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    pasteHint.textContent = '⏳ 上传中…';
+    try {
+      const res = await fetch('/admin/docs/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      pasteHint.textContent = '✓ 上传成功';
+      setTimeout(() => { pasteHint.textContent = '粘贴图片自动上传'; }, 2000);
+      return data.url;
+    } catch (e) {
+      pasteHint.textContent = '✗ 上传失败';
+      setTimeout(() => { pasteHint.textContent = '粘贴图片自动上传'; }, 3000);
+      return null;
+    }
+  }
+
+  textarea.addEventListener('paste', async function (e) {
+    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        const url  = await uploadImageFile(file);
+        if (url) {
+          const pos = textarea.selectionStart;
+          const md  = `![image](${url})`;
+          textarea.setRangeText(md, pos, pos, 'end');
+        }
+        break;
+      }
+    }
+  });
+
+  // Allow dragging image files into the textarea
+  textarea.addEventListener('dragover', e => e.preventDefault());
+  textarea.addEventListener('drop', async function (e) {
+    e.preventDefault();
+    const files = e.dataTransfer?.files;
+    if (!files?.length) return;
+    for (const file of files) {
+      if (file.type.startsWith('image/')) {
+        const url = await uploadImageFile(file);
+        if (url) {
+          const pos = textarea.selectionStart;
+          textarea.setRangeText(`![image](${url})`, pos, pos, 'end');
+        }
+        break;
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

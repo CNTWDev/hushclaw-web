@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Docs 管理 — Hushclaw Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-3">
+      <a href="/admin" class="text-gray-400 hover:text-white transition-colors text-sm">← 后台首页</a>
+      <span class="text-gray-600">/</span>
+      <h1 class="text-xl font-bold">📄 Docs 管理</h1>
+    </div>
+    <a href="/admin/docs/new"
+       class="bg-teal-500 hover:bg-teal-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+      + 新建文档
+    </a>
+  </div>
+
+  {% if docs %}
+  <div class="bg-navy-800 border border-navy-600 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-navy-600 text-gray-400 text-left">
+          <th class="px-5 py-3 font-medium">标题</th>
+          <th class="px-5 py-3 font-medium hidden md:table-cell">Slug</th>
+          <th class="px-5 py-3 font-medium text-center">状态</th>
+          <th class="px-5 py-3 font-medium hidden sm:table-cell">更新时间</th>
+          <th class="px-5 py-3 font-medium text-right">操作</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-navy-600">
+        {% for doc in docs %}
+        <tr class="hover:bg-navy-700/40 transition-colors">
+          <td class="px-5 py-4">
+            <span class="font-medium text-white">{{ doc.title }}</span>
+            {% if doc.summary %}
+            <p class="text-gray-500 text-xs mt-0.5 truncate max-w-xs">{{ doc.summary }}</p>
+            {% endif %}
+          </td>
+          <td class="px-5 py-4 hidden md:table-cell">
+            <code class="text-teal-400 text-xs bg-navy-900 px-2 py-0.5 rounded">{{ doc.slug }}</code>
+          </td>
+          <td class="px-5 py-4 text-center">
+            <form method="post" action="/admin/docs/{{ doc.id }}/toggle" class="inline">
+              {% if doc.is_published %}
+              <button type="submit"
+                class="text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2.5 py-1 rounded-full hover:bg-teal-500/30 transition-colors">
+                已发布
+              </button>
+              {% else %}
+              <button type="submit"
+                class="text-xs font-semibold bg-gray-700/40 text-gray-400 border border-gray-600 px-2.5 py-1 rounded-full hover:bg-gray-700 transition-colors">
+                草稿
+              </button>
+              {% endif %}
+            </form>
+          </td>
+          <td class="px-5 py-4 hidden sm:table-cell text-gray-500 text-xs font-mono">
+            {{ (doc.updated_at or doc.created_at).strftime('%Y-%m-%d %H:%M') if (doc.updated_at or doc.created_at) else '—' }}
+          </td>
+          <td class="px-5 py-4">
+            <div class="flex items-center justify-end gap-2">
+              {% if doc.is_published %}
+              <a href="/docs/{{ doc.slug }}" target="_blank"
+                 class="text-xs text-gray-400 hover:text-teal-300 transition-colors px-2 py-1 rounded hover:bg-navy-700">
+                预览
+              </a>
+              {% endif %}
+              <a href="/admin/docs/{{ doc.id }}/edit"
+                 class="text-xs text-gray-300 hover:text-white transition-colors px-2 py-1 rounded hover:bg-navy-700">
+                编辑
+              </a>
+              <form method="post" action="/admin/docs/{{ doc.id }}/delete"
+                    onsubmit="return confirm('确定删除「{{ doc.title }}」？')">
+                <button type="submit"
+                  class="text-xs text-red-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-900/20">
+                  删除
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="bg-navy-800 border border-navy-600 rounded-xl py-16 text-center">
+    <div class="text-4xl mb-3">📄</div>
+    <p class="text-gray-400">还没有文档</p>
+    <a href="/admin/docs/new" class="mt-4 inline-block text-teal-400 hover:text-teal-300 text-sm transition-colors">
+      创建第一篇 →
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
