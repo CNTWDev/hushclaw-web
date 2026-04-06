@@ -69,6 +69,103 @@ async def skills_list(
     )
 
 
+# ── Submit skill (web, requires login) ───────────────────────────────────────
+# Must be registered before /skills/{skill_id} to avoid the literal "submit"
+# being swallowed by the integer path parameter route.
+
+
+@router.get("/skills/submit", response_class=HTMLResponse)
+async def submit_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    categories = db.query(Category).order_by(Category.name).all()
+    return templates.TemplateResponse(
+        "skills/submit.html",
+        {"request": request, "categories": categories, "error": None},
+    )
+
+
+@router.post("/skills/submit", response_class=HTMLResponse)
+async def submit_skill(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    import re as _re
+    from app.routes.api import slugify, compute_content_hash
+
+    form = await request.form()
+    title = (form.get("title") or "").strip()
+    short_desc = (form.get("short_desc") or "").strip()
+    description = (form.get("description") or "").strip()
+    category_slug = (form.get("category_slug") or "").strip()
+    platform = (form.get("platform") or "all").strip()
+    tags = (form.get("tags") or "").strip()
+    version = (form.get("version") or "1.0.0").strip()
+    source_file = (form.get("source_file") or "").strip() or None
+
+    categories = db.query(Category).order_by(Category.name).all()
+
+    def _err(msg):
+        return templates.TemplateResponse(
+            "skills/submit.html",
+            {
+                "request": request, "categories": categories, "error": msg,
+                "form": dict(form),
+            },
+            status_code=400,
+        )
+
+    if not title or not short_desc or not description or not category_slug:
+        return _err("Title, short description, description, and category are required.")
+
+    category = db.query(Category).filter(Category.slug == category_slug).first()
+    if not category:
+        return _err(f"Unknown category: {category_slug}")
+
+    content_hash = compute_content_hash(title, description, short_desc, current_user.email, version)
+    skill_slug = slugify(title)
+
+    existing_by_hash = db.query(Skill).filter(Skill.content_hash == content_hash).first()
+    if existing_by_hash:
+        return RedirectResponse(f"/skills/{existing_by_hash.id}/status", status_code=302)
+
+    existing_by_user = (
+        db.query(Skill)
+        .filter(Skill.user_id == current_user.id, Skill.skill_slug == skill_slug)
+        .order_by(Skill.id.desc())
+        .first()
+    )
+
+    if existing_by_user and existing_by_user.status == "pending":
+        for attr, val in [
+            ("title", title), ("short_desc", short_desc), ("description", description),
+            ("category_id", category.id), ("platform", platform), ("tags", tags),
+            ("version", version), ("source_file", source_file), ("content_hash", content_hash),
+        ]:
+            setattr(existing_by_user, attr, val)
+        db.commit()
+        return RedirectResponse(f"/skills/{existing_by_user.id}/status", status_code=302)
+
+    parent_id = None
+    if existing_by_user and existing_by_user.status == "approved":
+        parent_id = existing_by_user.id
+
+    skill = Skill(
+        title=title, short_desc=short_desc, description=description,
+        category_id=category.id, platform=platform,
+        author=current_user.display_name or current_user.email,
+        tags=tags, version=version, source_file=source_file,
+        user_id=current_user.id, skill_slug=skill_slug, content_hash=content_hash,
+        status="pending", is_active=False, parent_id=parent_id,
+    )
+    db.add(skill)
+    db.commit()
+    return RedirectResponse(f"/skills/{skill.id}/status", status_code=302)
+
+
 # ── Skill detail ──────────────────────────────────────────────────────────────
 
 
@@ -170,101 +267,6 @@ async def rate_skill(
     db.commit()
     db.refresh(skill)
     return JSONResponse({"avg_rating": skill.avg_rating, "rating_count": skill.rating_count})
-
-
-# ── Submit skill (web, requires login) ───────────────────────────────────────
-
-
-@router.get("/skills/submit", response_class=HTMLResponse)
-async def submit_page(
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_user),
-):
-    categories = db.query(Category).order_by(Category.name).all()
-    return templates.TemplateResponse(
-        "skills/submit.html",
-        {"request": request, "categories": categories, "error": None},
-    )
-
-
-@router.post("/skills/submit", response_class=HTMLResponse)
-async def submit_skill(
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_user),
-):
-    import re as _re
-    from app.routes.api import slugify, compute_content_hash
-
-    form = await request.form()
-    title = (form.get("title") or "").strip()
-    short_desc = (form.get("short_desc") or "").strip()
-    description = (form.get("description") or "").strip()
-    category_slug = (form.get("category_slug") or "").strip()
-    platform = (form.get("platform") or "all").strip()
-    tags = (form.get("tags") or "").strip()
-    version = (form.get("version") or "1.0.0").strip()
-    source_file = (form.get("source_file") or "").strip() or None
-
-    categories = db.query(Category).order_by(Category.name).all()
-
-    def _err(msg):
-        return templates.TemplateResponse(
-            "skills/submit.html",
-            {
-                "request": request, "categories": categories, "error": msg,
-                "form": dict(form),
-            },
-            status_code=400,
-        )
-
-    if not title or not short_desc or not description or not category_slug:
-        return _err("Title, short description, description, and category are required.")
-
-    category = db.query(Category).filter(Category.slug == category_slug).first()
-    if not category:
-        return _err(f"Unknown category: {category_slug}")
-
-    content_hash = compute_content_hash(title, description, short_desc, current_user.email, version)
-    skill_slug = slugify(title)
-
-    existing_by_hash = db.query(Skill).filter(Skill.content_hash == content_hash).first()
-    if existing_by_hash:
-        return RedirectResponse(f"/skills/{existing_by_hash.id}/status", status_code=302)
-
-    existing_by_user = (
-        db.query(Skill)
-        .filter(Skill.user_id == current_user.id, Skill.skill_slug == skill_slug)
-        .order_by(Skill.id.desc())
-        .first()
-    )
-
-    if existing_by_user and existing_by_user.status == "pending":
-        for attr, val in [
-            ("title", title), ("short_desc", short_desc), ("description", description),
-            ("category_id", category.id), ("platform", platform), ("tags", tags),
-            ("version", version), ("source_file", source_file), ("content_hash", content_hash),
-        ]:
-            setattr(existing_by_user, attr, val)
-        db.commit()
-        return RedirectResponse(f"/skills/{existing_by_user.id}/status", status_code=302)
-
-    parent_id = None
-    if existing_by_user and existing_by_user.status == "approved":
-        parent_id = existing_by_user.id
-
-    skill = Skill(
-        title=title, short_desc=short_desc, description=description,
-        category_id=category.id, platform=platform,
-        author=current_user.display_name or current_user.email,
-        tags=tags, version=version, source_file=source_file,
-        user_id=current_user.id, skill_slug=skill_slug, content_hash=content_hash,
-        status="pending", is_active=False, parent_id=parent_id,
-    )
-    db.add(skill)
-    db.commit()
-    return RedirectResponse(f"/skills/{skill.id}/status", status_code=302)
 
 
 # ── Submission status (web, own skill only) ───────────────────────────────────
