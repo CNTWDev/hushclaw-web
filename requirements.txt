@@ -1,4 +1,4 @@
-fastapi
+fastapi>=0.110
 uvicorn[standard]
 sqlalchemy
 alembic

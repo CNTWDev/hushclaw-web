@@ -45,7 +45,7 @@ def require_admin(request: Request):
 
 @router.get("/login")
 async def login_page(request: Request):
-    return templates.TemplateResponse("admin/login.html", {"request": request, "error": None})
+    return templates.TemplateResponse(request, "admin/login.html", {"request": request, "error": None})
 
 
 @router.post("/login")
@@ -56,7 +56,7 @@ async def login(request: Request, password: str = Form(...)):
         response.set_cookie(COOKIE_NAME, token, httponly=True, max_age=86400)
         return response
     return templates.TemplateResponse(
-        "admin/login.html", {"request": request, "error": "Invalid password"}
+        request, "admin/login.html", {"request": request, "error": "Invalid password"}
     )
 
 
@@ -87,7 +87,7 @@ async def dashboard(
     user_count = db.query(User).count()
     latest_version = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
     return templates.TemplateResponse(
-        "admin/dashboard.html",
+        request, "admin/dashboard.html",
         {
             "request": request,
             "skills": skills,
@@ -105,7 +105,7 @@ async def new_skill_form(request: Request, db: Session = Depends(get_db)):
     require_admin(request)
     categories = db.query(Category).all()
     return templates.TemplateResponse(
-        "admin/skill_form.html",
+        request, "admin/skill_form.html",
         {"request": request, "skill": None, "categories": categories, "error": None},
     )
 
@@ -147,7 +147,7 @@ async def edit_skill_form(skill_id: int, request: Request, db: Session = Depends
         raise HTTPException(status_code=404, detail="Skill not found")
     categories = db.query(Category).all()
     return templates.TemplateResponse(
-        "admin/skill_form.html",
+        request, "admin/skill_form.html",
         {"request": request, "skill": skill, "categories": categories, "error": None},
     )
 
@@ -196,7 +196,7 @@ async def delete_skill(skill_id: int, request: Request, db: Session = Depends(ge
 async def new_category_form(request: Request):
     require_admin(request)
     return templates.TemplateResponse(
-        "admin/category_form.html", {"request": request, "category": None, "error": None}
+        request, "admin/category_form.html", {"request": request, "category": None, "error": None}
     )
 
 
@@ -266,7 +266,7 @@ async def list_versions(request: Request, db: Session = Depends(get_db)):
     versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
     latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
     return templates.TemplateResponse(
-        "admin/versions.html",
+        request, "admin/versions.html",
         {"request": request, "versions": versions, "latest": latest, "error": None},
     )
 
@@ -287,14 +287,14 @@ async def create_version(
         versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
         latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
         return templates.TemplateResponse(
-            "admin/versions.html",
+            request, "admin/versions.html",
             {"request": request, "versions": versions, "latest": latest, "error": "版本号不能为空"},
         )
     if db.query(AppVersion).filter(AppVersion.version == version).first():
         versions = db.query(AppVersion).order_by(AppVersion.published_at.desc()).all()
         latest = db.query(AppVersion).filter(AppVersion.is_latest == True).first()
         return templates.TemplateResponse(
-            "admin/versions.html",
+            request, "admin/versions.html",
             {"request": request, "versions": versions, "latest": latest, "error": f"版本 {version} 已存在"},
         )
     if set_latest == "on":
@@ -351,7 +351,7 @@ async def list_docs(request: Request, db: Session = Depends(get_db)):
     require_admin(request)
     docs = db.query(Doc).order_by(Doc.created_at.desc()).all()
     return templates.TemplateResponse(
-        "admin/docs.html", {"request": request, "docs": docs}
+        request, "admin/docs.html", {"request": request, "docs": docs}
     )
 
 
@@ -359,7 +359,7 @@ async def list_docs(request: Request, db: Session = Depends(get_db)):
 async def new_doc_form(request: Request):
     require_admin(request)
     return templates.TemplateResponse(
-        "admin/doc_form.html", {"request": request, "doc": None, "error": None}
+        request, "admin/doc_form.html", {"request": request, "doc": None, "error": None}
     )
 
 
@@ -377,7 +377,7 @@ async def create_doc(
     slug = slug.strip() or _slugify(title)
     if db.query(Doc).filter(Doc.slug == slug).first():
         return templates.TemplateResponse(
-            "admin/doc_form.html",
+            request, "admin/doc_form.html",
             {"request": request, "doc": None, "error": f"Slug '{slug}' 已存在，请修改"},
         )
     doc = Doc(
@@ -399,7 +399,7 @@ async def edit_doc_form(doc_id: int, request: Request, db: Session = Depends(get
     if not doc:
         raise HTTPException(status_code=404, detail="Doc not found")
     return templates.TemplateResponse(
-        "admin/doc_form.html", {"request": request, "doc": doc, "error": None}
+        request, "admin/doc_form.html", {"request": request, "doc": doc, "error": None}
     )
 
 
@@ -422,7 +422,7 @@ async def update_doc(
     conflict = db.query(Doc).filter(Doc.slug == slug, Doc.id != doc_id).first()
     if conflict:
         return templates.TemplateResponse(
-            "admin/doc_form.html",
+            request, "admin/doc_form.html",
             {"request": request, "doc": doc, "error": f"Slug '{slug}' 已被其他文章占用"},
         )
     doc.title = title.strip()

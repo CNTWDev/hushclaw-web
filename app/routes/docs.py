@@ -27,7 +27,7 @@ async def docs_index(request: Request, db: Session = Depends(get_db)):
         .all()
     )
     return templates.TemplateResponse(
-        "docs/index.html", {"request": request, "docs": docs}
+        request, "docs/index.html", {"request": request, "docs": docs}
     )
 
 
@@ -42,6 +42,6 @@ async def doc_detail(slug: str, request: Request, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Document not found")
     content_html = _md(doc.content or "")
     return templates.TemplateResponse(
-        "docs/detail.html",
+        request, "docs/detail.html",
         {"request": request, "doc": doc, "content_html": content_html},
     )
