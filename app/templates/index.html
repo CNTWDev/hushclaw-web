@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}HushClaw — Lightweight Token-first AI Agent Framework{% endblock %}
+{% block title %}HushClaw — The personal AI assistant that knows you{% endblock %}
 
 {% block head %}
 <style>
@@ -47,23 +47,24 @@
         <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-7">
           <span class="inline-flex items-center gap-1.5 bg-navy-700/80 border border-navy-600 text-teal-400 text-xs font-medium px-3 py-1 rounded-full">
             <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-            Python 3.11+ · Zero Dependencies
+            Personal memory · Self-evolving
           </span>
           <span class="inline-flex items-center gap-1.5 bg-navy-700/80 border border-navy-600 text-gray-400 text-xs px-3 py-1 rounded-full">
-            🔒 Local-first · No cloud required
+            🔒 Local-first · Your data stays yours
           </span>
         </div>
 
         <h1 class="text-5xl sm:text-6xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.05]">
-          <span class="text-white">Build AI Agents</span><br>
+          <span class="text-white">An AI that</span><br>
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400">
-            Token&#8209;First
+            keeps learning you
           </span>
         </h1>
 
         <p class="text-lg text-gray-400 max-w-lg mx-auto lg:mx-0 mb-10 leading-relaxed">
-          Persistent memory · Built-in browser UI · Pure Python stdlib.
-          No pip required. Works offline. Ships in minutes.
+          HushClaw remembers your preferences, projects and way of working,
+          reflects on every correction to get better, and runs on your own machine,
+          so what it learns about you stays with you.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
@@ -71,8 +72,8 @@
             Browse Skills
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </a>
-          <a href="#features" class="inline-flex items-center justify-center gap-2 bg-navy-700/80 hover:bg-navy-600 border border-navy-600 hover:border-navy-500 text-gray-200 font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
-            Why HushClaw?
+          <a href="#philosophy" class="inline-flex items-center justify-center gap-2 bg-navy-700/80 hover:bg-navy-600 border border-navy-600 hover:border-navy-500 text-gray-200 font-semibold px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+            Our philosophy
           </a>
         </div>
       </div>
@@ -120,19 +121,19 @@
             </div>
             <div class="divide-y divide-navy-700/30 pb-3">
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">一键卸载</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">Uninstall</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh)"
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">保留记忆/配置</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">Keep data</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) --keep-data"
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">无确认 (CI)</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">No prompt</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">bash &lt;(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y</code>
                 <button data-copy="bash <(curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.sh) -y"
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
@@ -159,19 +160,19 @@
             </div>
             <div class="divide-y divide-navy-700/30 pb-3">
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">一键卸载</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">Uninstall</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"</code>
                 <button data-copy='powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/CNTWDev/hushclaw/master/uninstall.ps1 | iex"'
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">保留记忆/配置</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">Keep data</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">.\uninstall.ps1 -KeepData</code>
                 <button data-copy=".\uninstall.ps1 -KeepData"
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
               </div>
               <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                <span class="shrink-0 text-xs text-gray-600 w-24">无确认 (CI)</span>
+                <span class="shrink-0 text-xs text-gray-600 w-24">No prompt</span>
                 <code class="cmd-muted cmd-scroll flex-1 font-mono text-xs min-w-0">.\uninstall.ps1 -Yes</code>
                 <button data-copy=".\uninstall.ps1 -Yes"
                   class="copy-btn shrink-0 opacity-0 group-hover:opacity-100 bg-navy-700/80 hover:bg-navy-600 text-gray-400 text-xs px-2.5 py-1 rounded-lg border border-navy-600 transition-all">Copy</button>
@@ -187,23 +188,92 @@
   </div>
 </section>
 
-<!-- Features -->
-<section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+<!-- Philosophy -->
+<section id="philosophy" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
   <div class="text-center mb-16">
-    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Why HushClaw?</h2>
-    <p class="text-gray-400 max-w-xl mx-auto">Everything you need to build powerful AI agents — nothing you don't</p>
+    <p class="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Our philosophy</p>
+    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Models change. Your context shouldn't.</h2>
+    <p class="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+      New models and agents arrive every month, and your work is scattered across them.
+      HushClaw gives your preferences, background and experience one place to accumulate,
+      so every model you use starts from what you've already taught it.
+    </p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    {% set pillars = [
+      ("🧠", "Knows you, deeply",
+       "Long-term personal memory of your preferences, projects, opinions and the way you like work done. One memory carries across every model and agent, and you can see where each recollection came from.",
+       ["Preferences and communication style", "Projects, facts and decisions", "Your methods and how they evolve"], "#a78bfa"),
+      ("🔁", "Evolves through reflection",
+       "After each task HushClaw looks back at what happened: what worked, what you corrected, how you rated the answer. Lessons become memories and skill improvements, every change is shown to you, and memory changes can be undone.",
+       ["Learns from corrections and ratings", "Refines its own skills over time", "Personal regression checks keep it honest"], "#2dd4bf"),
+      ("🔒", "Local-first, private by default",
+       "HushClaw runs on your computer and is used through your browser. Chats, memories, tasks and files are stored and encrypted locally. Sensitive actions such as running shell commands ask for your approval first.",
+       ["Encrypted local database (SQLCipher)", "Your memory is independent of any model vendor", "Back up and move it whenever you like"], "#fb923c"),
+    ] %}
+    {% for icon, name, desc, points, color in pillars %}
+    <div class="relative bg-navy-800/60 border border-navy-600/80 rounded-2xl p-7 hover:border-navy-500 hover:bg-navy-800 transition-all group overflow-hidden">
+      <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+           style="background: radial-gradient(circle at 0% 0%, {{ color }}10 0%, transparent 60%)"></div>
+      <div class="relative">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-5"
+             style="background: {{ color }}15; border: 1px solid {{ color }}30;">{{ icon }}</div>
+        <h3 class="text-xl font-semibold text-white mb-3">{{ name }}</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">{{ desc }}</p>
+        <ul class="space-y-2">
+          {% for point in points %}
+          <li class="flex items-start gap-2 text-sm text-gray-300">
+            <span class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style="background: {{ color }}"></span>{{ point }}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- How it learns -->
+<section id="how-it-learns" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+  <div class="bg-navy-800/40 border border-navy-600/60 rounded-3xl px-6 sm:px-10 py-12">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl sm:text-3xl font-bold mb-3">How it learns you</h2>
+      <p class="text-gray-400 max-w-xl mx-auto text-sm">A loop that runs quietly with every conversation, and that you can always inspect and correct.</p>
+    </div>
+    <ol class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% set steps = [
+        ("Remember", "Relevant memories about you are recalled and handed to whichever model is answering."),
+        ("Act", "The assistant works with your tools, files and skills, asking before anything sensitive."),
+        ("Reflect", "It reviews the outcome, including your corrections and ratings, and extracts what to keep."),
+        ("Evolve", "Memories and skills are updated. Each turn shows what changed, so you stay in control."),
+      ] %}
+      {% for title, text in steps %}
+      <li class="bg-navy-900/60 border border-navy-700 rounded-2xl p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="w-7 h-7 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-bold flex items-center justify-center">{{ loop.index }}</span>
+          <h3 class="font-semibold text-white">{{ title }}</h3>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">{{ text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<!-- Capabilities -->
+<section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28">
+  <div class="text-center mb-12">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-3">One workspace for everyday work</h2>
+    <p class="text-gray-400 max-w-xl mx-auto text-sm">Everything runs in a local web app at http://localhost:8765.</p>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
     {% set features = [
-      ("🖥️", "Browser UI", "Full chat interface at http://localhost:8765 — sessions, memories, and multi-agent panels. Setup wizard on first launch.", "#2dd4bf"),
-      ("🎯", "Token-first Design", "Explicit token budget per context section. Anthropic KV-cache support for the stable prefix.", "#60a5fa"),
-      ("🧠", "Persistent Memory", "Notes survive across sessions via SQLite FTS5 + local vector search.", "#a78bfa"),
-      ("📦", "Zero Dependencies", "Runs with Python 3.11+ stdlib only — sqlite3, tomllib, asyncio, urllib. No pip required.", "#4ade80"),
-      ("🔌", "Multiple Providers", "Anthropic (urllib or SDK), Ollama, and any OpenAI-compatible endpoint.", "#fb923c"),
-      ("🔄", "ReAct Loop", "Tool use with pluggable ContextEngine for lossless context compaction.", "#22d3ee"),
-      ("🧩", "Plugin Tools", "Drop .py files into ~/.config/hushclaw/tools/ to extend with custom tools.", "#2dd4bf"),
-      ("🤝", "Multi-agent", "Sequential pipelines, session-affinity pools, and agent-to-agent delegation.", "#f472b6"),
-      ("💾", "Native Storage", "macOS ~/Library/Application Support/hushclaw/ · Linux ~/.local/share/hushclaw/", "#facc15"),
+      ("💬", "Chat", "Streaming conversations, document analysis and file handling, with a quiet one-line status while it works.", "#2dd4bf"),
+      ("🔀", "Any model", "Pick the right model per task through the built-in gateway, or connect Anthropic, OpenAI-compatible, Gemini or Ollama directly.", "#60a5fa"),
+      ("🗂️", "Memories you can audit", "Browse preferences, notes, opinions and experience; check their sources and fix anything that's wrong.", "#a78bfa"),
+      ("🤝", "Agents & skills", "Give different jobs their own assistant, tools and SKILL.md skills, and let agents collaborate on a task.", "#f472b6"),
+      ("📅", "Tasks & calendar", "Track tasks and schedules, optionally synced with your local or external calendars.", "#facc15"),
+      ("🔌", "Connections", "Plug in email, the browser and other services when you need them, each with its own authorization.", "#fb923c"),
     ] %}
     {% for icon, name, desc, color in features %}
     <div class="relative bg-navy-800/60 border border-navy-600/80 rounded-2xl p-6 hover:border-navy-500 hover:bg-navy-800 transition-all group cursor-default overflow-hidden">
@@ -251,7 +321,7 @@
             <span class="text-yellow-400">★</span>
             <span>{{ skill.avg_rating if skill.avg_rating > 0 else 'No ratings' }}</span>
           </div>
-          <span>{{ skill.install_count }} 次安装</span>
+          <span>{{ skill.install_count }} installs</span>
         </div>
       </a>
       {% endfor %}
@@ -267,10 +337,10 @@
   </div>
   <div class="relative max-w-2xl mx-auto text-center px-4">
     <div class="inline-flex items-center gap-1.5 bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium px-3 py-1 rounded-full mb-6">
-      🚀 Open Source · MIT License
+      🚀 Open source on GitHub
     </div>
-    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Ready to get started?</h2>
-    <p class="text-gray-400 mb-10">Install HushClaw in 30 seconds and explore hundreds of community skills</p>
+    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Start building a memory that's yours</h2>
+    <p class="text-gray-400 mb-10">One command installs HushClaw on your computer. The longer you use it, the better it knows you.</p>
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
       <a href="#quickstart" class="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-10 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20 hover:-translate-y-0.5">
         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>

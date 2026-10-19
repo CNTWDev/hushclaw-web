@@ -31,7 +31,7 @@ async def account_page(
         .all()
     )
     return templates.TemplateResponse(
-        "account/index.html",
+        request, "account/index.html",
         {"request": request, "user": current_user, "tokens": tokens},
     )
 

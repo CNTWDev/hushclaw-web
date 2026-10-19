@@ -54,7 +54,7 @@ async def skills_list(
     skills = query.offset((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).all()
 
     return templates.TemplateResponse(
-        "skills/index.html",
+        request, "skills/index.html",
         {
             "request": request,
             "skills": skills,
@@ -82,7 +82,7 @@ async def submit_page(
 ):
     categories = db.query(Category).order_by(Category.name).all()
     return templates.TemplateResponse(
-        "skills/submit.html",
+        request, "skills/submit.html",
         {"request": request, "categories": categories, "error": None},
     )
 
@@ -110,7 +110,7 @@ async def submit_skill(
 
     def _err(msg):
         return templates.TemplateResponse(
-            "skills/submit.html",
+            request, "skills/submit.html",
             {
                 "request": request, "categories": categories, "error": msg,
                 "form": dict(form),
@@ -196,7 +196,7 @@ async def skill_detail(
         user_rating = rating_row.score if rating_row else 0
 
     return templates.TemplateResponse(
-        "skills/detail.html",
+        request, "skills/detail.html",
         {
             "request": request,
             "skill": skill,
@@ -285,6 +285,6 @@ async def skill_status_page(
     if skill.user_id != current_user.id:
         raise HTTPException(403, "You can only view your own submissions")
     return templates.TemplateResponse(
-        "skills/status.html",
+        request, "skills/status.html",
         {"request": request, "skill": skill},
     )

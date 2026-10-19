@@ -148,7 +148,7 @@ def _send_code_logic(email: str, db: Session) -> None:
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+    return templates.TemplateResponse(request, "auth/login.html", {"request": request})
 
 
 @router.post("/send-code", response_class=HTMLResponse)
@@ -161,12 +161,12 @@ async def web_send_code(
         _send_code_logic(email.strip().lower(), db)
     except HTTPException as exc:
         return templates.TemplateResponse(
-            "auth/login.html",
+            request, "auth/login.html",
             {"request": request, "error": exc.detail, "step": "email", "email": email},
             status_code=exc.status_code,
         )
     return templates.TemplateResponse(
-        "auth/login.html",
+        request, "auth/login.html",
         {"request": request, "step": "code", "email": email.strip().lower()},
     )
 
@@ -182,7 +182,7 @@ async def web_verify_code(
         _validate_otp(email.strip().lower(), code.strip(), db)
     except HTTPException as exc:
         return templates.TemplateResponse(
-            "auth/login.html",
+            request, "auth/login.html",
             {"request": request, "error": exc.detail, "step": "code", "email": email},
             status_code=exc.status_code,
         )

@@ -20,7 +20,7 @@ async def index(request: Request, db: Session = Depends(get_db)):
         .all()
     )
     return templates.TemplateResponse(
-        "index.html",
+        request, "index.html",
         {
             "request": request,
             "categories": categories,
