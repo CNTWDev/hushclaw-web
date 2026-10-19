@@ -1,95 +1,102 @@
 # hushclaw-web
 
-HushClaw 的官网与技能目录（[hushclaw](https://github.com/CNTWDev/hushclaw) 的对外站点）：首页介绍产品理念与安装方式，`/skills` 浏览、提交和评分社区技能，`/docs` 发布文章，`/admin` 管理后台。
+The official website and skill directory for [HushClaw](https://github.com/CNTWDev/hushclaw). The home page explains the product and how to install it, `/skills` lets people browse, submit and rate community skills, `/docs` hosts articles, and `/admin` is the management panel.
 
-> HushClaw 是一个深度了解你的个人 AI 助理：记住你的偏好、背景和做事方法，从你的反馈与修正中反思、持续进化；运行在你自己的电脑上，记忆和数据由你持有。
+> HushClaw is a personal AI assistant that gets to know you deeply. It remembers your preferences, background and way of working, and it reflects on your feedback and corrections to keep improving. It runs on your own computer, so your memory and data stay yours.
 
-技术栈：FastAPI + Uvicorn · SQLite + SQLAlchemy + Alembic · Jinja2 · Python 3.10+
+Stack: FastAPI + Uvicorn · SQLite + SQLAlchemy + Alembic · Jinja2 · Python 3.10+
 
 ---
 
-## 服务器一键安装
+## One-line server install
 
-适用于带 systemd 的 Linux 服务器（Ubuntu / Debian / CentOS / Rocky 等），用 root 或 sudo 执行：
+Works on Linux servers with systemd (Ubuntu, Debian, CentOS, Rocky, …). Run as root or with sudo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw-web/master/install.sh | sudo bash
 ```
 
-脚本会自动完成：
+The script:
 
-1. 安装缺少的系统依赖（git、python3、python3-venv）
-2. 创建系统用户 `hushclaw-web`，把代码克隆到 `/opt/hushclaw-web`
-3. 生成运行配置 `/etc/hushclaw-web/hushclaw-web.env`（随机的 `SECRET_KEY` 和后台密码）
-4. 创建虚拟环境、安装 Python 依赖、执行数据库迁移（`alembic upgrade head`）
-5. 注册并启动 systemd 服务 `hushclaw-web`，等待健康检查通过
-6. 安装运维命令 `hushclaw-web`
+1. Installs missing system packages (git, python3, python3-venv)
+2. Creates the `hushclaw-web` system user and clones the code into `/opt/hushclaw-web`
+3. Writes the runtime config `/etc/hushclaw-web/hushclaw-web.env`, with a random `SECRET_KEY` and admin password
+4. Creates a virtualenv, installs Python dependencies and runs the database migrations (`alembic upgrade head`)
+5. Registers and starts the systemd service `hushclaw-web`, then waits for a health check to pass
+6. Installs the `hushclaw-web` management command
 
-安装完成后会打印一次后台密码（之后可在 env 文件里查看）。服务默认只监听 `127.0.0.1:8000`，对外访问请配置反向代理（见下文）。
+At the end it prints the admin password once. You can look it up again in the env file later. By default the service listens on `127.0.0.1:8000` only, so put a reverse proxy in front of it (see below).
 
-安装前可以用环境变量改默认值（只在首次安装时生效，之后保存在 `/etc/hushclaw-web/deploy.conf`）：
+You can override the defaults with environment variables. They only apply on the first install. After that, the values are stored in `/etc/hushclaw-web/deploy.conf`.
 
-| 变量 | 默认值 | 说明 |
+| Variable | Default | Meaning |
 | --- | --- | --- |
-| `HUSHCLAW_WEB_PORT` | `8000` | 服务端口 |
-| `HUSHCLAW_WEB_HOST` | `127.0.0.1` | 监听地址；不用反向代理时可设为 `0.0.0.0` |
-| `HUSHCLAW_WEB_BRANCH` | `master` | 跟踪的分支 |
-| `HUSHCLAW_WEB_DIR` | `/opt/hushclaw-web` | 代码目录 |
-| `HUSHCLAW_WEB_DATA` | `/var/lib/hushclaw-web` | 数据目录（数据库、备份） |
-| `HUSHCLAW_WEB_IMPORT_DB` | 空 | 首次安装时导入已有的 SQLite 数据库 |
-| `HUSHCLAW_WEB_STRICT_PORT` | `0` | 设为 `1` 时端口被占用直接报错，不自动换端口 |
+| `HUSHCLAW_WEB_PORT` | `8000` | Service port |
+| `HUSHCLAW_WEB_HOST` | `127.0.0.1` | Bind address. Use `0.0.0.0` if you don't run a reverse proxy |
+| `HUSHCLAW_WEB_BRANCH` | `master` | Branch to track |
+| `HUSHCLAW_WEB_DIR` | `/opt/hushclaw-web` | Code directory |
+| `HUSHCLAW_WEB_DATA` | `/var/lib/hushclaw-web` | Data directory (database, backups) |
+| `HUSHCLAW_WEB_IMPORT_DB` | empty | Existing SQLite database to import on first install |
+| `HUSHCLAW_WEB_STRICT_PORT` | `0` | When `1`, fail if the port is taken instead of moving to another port |
 
-例如：
+Example:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw-web/master/install.sh \
   | sudo HUSHCLAW_WEB_PORT=9000 bash
 ```
 
-## 更新到最新代码
+## Updating to the latest code
 
 ```bash
 sudo hushclaw-web update
 ```
 
-更新流程：拉取 GitHub 上最新代码 → 备份数据库和上传文件 → 切换到新代码 → 依赖有变化时重新安装 → 数据库迁移 → 重启服务 → 健康检查。
+An update runs these steps in order:
 
-- 已经是最新时什么都不做；要强制重新部署用 `sudo hushclaw-web update --force`。
-- **健康检查失败会自动回滚**：代码切回上一个版本、数据库恢复到更新前的备份、重启旧版本。
-- 没有装 `hushclaw-web` 命令的机器，也可以直接用一行命令更新：
+1. Fetch the latest code from GitHub
+2. Back up the database and uploaded files
+3. Switch to the new code
+4. Reinstall dependencies if `requirements.txt` changed
+5. Run the database migrations
+6. Restart the service and run the health check
+
+- If the site is already up to date, the command does nothing. Use `sudo hushclaw-web update --force` to redeploy anyway.
+- **A failed health check rolls back automatically.** The code goes back to the previous version, the database is restored from the backup taken just before the update, and the old version is restarted.
+- On a machine without the `hushclaw-web` command, you can update with a single line:
 
   ```bash
   curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw-web/master/install.sh | sudo bash -s -- update
   ```
 
-- 想定时自动更新，可以加一条 cron（每天 4 点）：
+- To update automatically, add a cron job. This one runs every day at 04:00:
 
   ```bash
   echo '0 4 * * * root /usr/local/bin/hushclaw-web update >> /var/log/hushclaw-web-update.log 2>&1' | sudo tee /etc/cron.d/hushclaw-web
   ```
 
-## 常用命令
+## Commands
 
-| 命令 | 作用 |
+| Command | What it does |
 | --- | --- |
-| `sudo hushclaw-web update [--force]` | 拉取最新代码并重启 |
-| `hushclaw-web status` | 当前部署的版本、端口和服务状态 |
-| `hushclaw-web logs [-f]` | 查看服务日志 |
-| `sudo hushclaw-web restart` | 重启服务（同样会处理端口占用） |
-| `sudo hushclaw-web backup` | 手动备份数据库和上传文件 |
-| `sudo hushclaw-web rollback [--with-db]` | 回到上一次部署的版本；`--with-db` 同时恢复那次更新前的数据库 |
-| `sudo hushclaw-web uninstall [--purge]` | 卸载服务；默认保留代码、数据和配置，`--purge` 全部删除 |
+| `sudo hushclaw-web update [--force]` | Pull the latest code and restart |
+| `hushclaw-web status` | Deployed version, port and service state |
+| `hushclaw-web logs [-f]` | Service logs |
+| `sudo hushclaw-web restart` | Restart the service. Port conflicts are handled the same way as on install |
+| `sudo hushclaw-web backup` | Back up the database and uploaded files |
+| `sudo hushclaw-web rollback [--with-db]` | Go back to the previously deployed version. `--with-db` also restores the database from before that update |
+| `sudo hushclaw-web uninstall [--purge]` | Remove the service. Code, data and config are kept unless you pass `--purge` |
 
-## 端口被占用怎么办
+## When the port is already in use
 
-安装、更新和重启时，脚本都会先检查端口，并区分两种情况：
+On install, update and restart, the script checks the port first. It handles two cases differently:
 
-1. **被 hushclaw-web 自己的旧进程占用**（比如以前手动 `./start.sh` 或 `uvicorn` 跑起来的、没停掉的旧服务）：脚本识别出它是本项目的进程，先停掉（含 `--reload` 的子进程），然后在原端口重新启动。
-2. **被别的程序占用**：脚本打印占用者的 PID 和命令，自动选择后面第一个空闲端口（如 8001），写回 `deploy.conf`，并提醒你同步修改反向代理里的端口。如果你希望端口固定、宁可失败也不要换，安装时设置 `HUSHCLAW_WEB_STRICT_PORT=1`。
+1. **The port is held by an old hushclaw-web process.** This covers an earlier manual `./start.sh` or `uvicorn` run that was never stopped. The script recognises the process as this project's, stops it (including `--reload` workers) and starts the service on the same port.
+2. **The port is held by another program.** The script prints that program's PID and command line and moves to the next free port, for example 8001. It saves the new port to `deploy.conf` and reminds you to update the port in your reverse proxy. If you want a fixed port and would rather fail than move, set `HUSHCLAW_WEB_STRICT_PORT=1` when installing.
 
-要手动换端口：编辑 `/etc/hushclaw-web/deploy.conf` 里的 `PORT`，然后 `sudo hushclaw-web restart`。
+To change the port by hand, edit `PORT` in `/etc/hushclaw-web/deploy.conf` and run `sudo hushclaw-web restart`.
 
-## 反向代理（nginx 示例）
+## Reverse proxy (nginx example)
 
 ```nginx
 server {
@@ -107,50 +114,50 @@ server {
 }
 ```
 
-服务以 `--proxy-headers` 启动，评分等按 IP 去重的功能能拿到真实访客 IP。HTTPS 可以用 certbot 或直接换 Caddy。
+The service runs with `--proxy-headers`, so features that count by IP, such as ratings, see the real visitor's address. For HTTPS, use certbot or switch to Caddy.
 
-## 目录与配置
+## Files and configuration
 
-| 路径 | 内容 |
+| Path | Contents |
 | --- | --- |
-| `/opt/hushclaw-web` | 代码（git checkout）和虚拟环境 `.venv` |
-| `/opt/hushclaw-web/static/uploads` | 用户上传的文件（不受 git 更新影响，会随备份打包） |
-| `/var/lib/hushclaw-web/hushclaw-web.db` | 数据库 |
-| `/var/lib/hushclaw-web/backups/` | 每次更新前的备份，保留最近 10 份 |
-| `/var/lib/hushclaw-web/deploy-history` | 每次成功部署的时间和 commit |
-| `/etc/hushclaw-web/hushclaw-web.env` | 运行配置：后台密码、`SECRET_KEY`、SMTP 等，修改后 `sudo hushclaw-web restart` |
-| `/etc/hushclaw-web/deploy.conf` | 部署配置：仓库、分支、目录、端口 |
+| `/opt/hushclaw-web` | Code (a git checkout) and the `.venv` virtualenv |
+| `/opt/hushclaw-web/static/uploads` | Uploaded files. Git updates don't touch them, and they are included in backups |
+| `/var/lib/hushclaw-web/hushclaw-web.db` | Database |
+| `/var/lib/hushclaw-web/backups/` | Backups taken before each update. The 10 most recent are kept |
+| `/var/lib/hushclaw-web/deploy-history` | Time and commit of each successful deploy |
+| `/etc/hushclaw-web/hushclaw-web.env` | Runtime config: admin password, `SECRET_KEY`, SMTP and so on. Run `sudo hushclaw-web restart` after editing |
+| `/etc/hushclaw-web/deploy.conf` | Deploy config: repository, branch, directories, port |
 
-### 从旧的手动部署迁移
+### Migrating from a manual deployment
 
-如果服务器上已经有一份手动跑的站点（例如仓库目录里的 `hushclas.db`），首次安装时把旧数据库导入：
+If the server already runs the site by hand, for example with `hushclas.db` in the repo directory, import the old database on first install:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CNTWDev/hushclaw-web/master/install.sh \
   | sudo HUSHCLAW_WEB_IMPORT_DB=/path/to/old/hushclas.db bash
 ```
 
-旧进程如果还占着同一个端口，脚本会识别并停掉它。不带这个变量时，新安装会以仓库里自带的 `hushclas.db`（技能和分类的种子数据）为初始数据库。上传文件请手动复制到 `/opt/hushclaw-web/static/uploads/`。
+If the old process is still holding the same port, the script recognises it and stops it. Without this variable, a fresh install starts from the `hushclas.db` shipped in the repo, which contains the seed skills and categories. Copy any uploaded files to `/opt/hushclaw-web/static/uploads/` by hand.
 
-## 安装脚本的升级
+## Upgrading the installer
 
-- **脚本跟着代码一起升级。** `hushclaw-web` 命令只是调用代码目录里的 `install.sh`；`update` 拉下新代码后，会用**新版本**的脚本完成剩下的步骤（依赖、迁移、systemd 单元、重启）。所以修改 `install.sh` 并合并到 `master` 后，服务器下一次 `update` 就会用上新脚本，无需额外操作。
-- systemd 单元文件和 `hushclaw-web` 命令每次部署都会按新脚本重写；`deploy.conf` 和 `hushclaw-web.env` 只在缺失时生成，已有的配置不会被覆盖。
-- 修改脚本时请：
-  1. 更新脚本顶部的 `SCRIPT_VERSION`（`hushclaw-web version` 可查看）
-  2. 保持对旧 `deploy.conf` 的兼容：新增配置项要有默认值
-  3. 先在测试机上跑一遍全新安装和 `update --force`，再合并
-- 如果某次脚本改坏了导致 `update` 无法完成，可以在服务器上 `sudo hushclaw-web rollback` 回到上一版，或者用一行命令直接拉取 GitHub 上修好的脚本执行 `update`。
+- **The installer is upgraded together with the code.** The `hushclaw-web` command just runs the `install.sh` inside the code directory. After `update` pulls the new code, the **new** version of the script runs the remaining steps: dependencies, migrations, the systemd unit and the restart. So once a change to `install.sh` is merged into `master`, the server uses it on its next `update`. Nothing else is needed.
+- The systemd unit and the `hushclaw-web` command are rewritten from the current script on every deploy. `deploy.conf` and `hushclaw-web.env` are only created when missing, so existing configuration is never overwritten.
+- When you change the script:
+  1. Bump `SCRIPT_VERSION` at the top (`hushclaw-web version` prints it).
+  2. Keep it compatible with existing `deploy.conf` files: any new setting needs a default.
+  3. Run a fresh install and an `update --force` on a test machine before merging.
+- If a broken script change stops `update` from finishing, run `sudo hushclaw-web rollback` on the server to go back to the previous version. Alternatively, run `update` with the fixed script straight from GitHub using the one-line command above.
 
 ---
 
-## 本地开发
+## Local development
 
 ```bash
 ./start.sh
 ```
 
-自动创建虚拟环境、安装依赖，并在 `http://localhost:8000` 启动（带 `--reload`）。或者手动：
+This creates a virtualenv, installs dependencies and starts the server at `http://localhost:8000` with `--reload`. To do it by hand:
 
 ```bash
 python3 -m venv .venv
@@ -160,31 +167,31 @@ alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 ```
 
-复制 `.env.example` 为 `.env` 可修改本地配置。`python seed_data.py` 会**清空**技能、分类和评分后重新写入种子数据，只在本地使用。
+Copy `.env.example` to `.env` to change local settings. `python seed_data.py` **deletes** all skills, categories and ratings before writing the seed data, so only run it locally.
 
-### 项目结构
+### Project structure
 
 ```
 hushclaw-web/
-├── install.sh          # 服务器一键安装 / 更新脚本
+├── install.sh          # one-line server installer / updater
 ├── app/
-│   ├── main.py         # 应用入口
-│   ├── database.py     # 数据库连接
-│   ├── models.py       # SQLAlchemy 模型
+│   ├── main.py         # app entry point
+│   ├── database.py     # database connection
+│   ├── models.py       # SQLAlchemy models
 │   ├── routes/         # home / skills / docs / auth / account / api / admin
-│   └── templates/      # Jinja2 模板
-├── alembic/            # 数据库迁移
-├── static/             # CSS、JS、图片、上传文件
+│   └── templates/      # Jinja2 templates
+├── alembic/            # database migrations
+├── static/             # CSS, JS, images, uploads
 ├── requirements.txt
-├── seed_data.py        # 种子数据（会清空现有数据）
-└── start.sh            # 本地开发启动脚本
+├── seed_data.py        # seed data (wipes existing data)
+└── start.sh            # local dev startup script
 ```
 
-### 数据模型
+### Data models
 
-- **Category**：技能分类
-- **Skill**：标题、描述、平台、标签、评分
-- **Rating**：按 IP 评分（每人每个技能一票）
-- **User / EmailOTP / UserToken**：邮箱验证码登录
-- **AppVersion**：客户端版本管理
-- **Doc**：文章
+- **Category**: skill categories
+- **Skill**: title, description, platform, tags, ratings
+- **Rating**: per-IP ratings (one vote per person per skill)
+- **User / EmailOTP / UserToken**: email one-time-code sign-in
+- **AppVersion**: client version management
+- **Doc**: articles
